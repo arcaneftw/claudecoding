@@ -3,455 +3,502 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: one-screen map. Foundation band on top, Registrar task pipeline, areas of activity (left) beside company structures (right), status holders and decision-makers below. Click any chip: related items light up and a side panel explains the Registrar's approach. */
+/* Layout: fixed 4:3 stage (1200x900) scaled to the window, no page scroll. Same grammar as the Regulatory Map slide: foundation band, main areas of activity, structures, sandbox and partners, lifecycle band, legend. All detail opens on click. */
 :root{
-  --bg:#eaf3ee; --panel:#ffffff; --ink:#12284a; --muted:#5b6b82; --line:#cfe0e8;
-  --blue:#1a6fd0; --blue-soft:#e7f1fc; --green:#1b9a55; --green-soft:#e5f6ec; --amber:#c0831a; --amber-soft:#fcf1dc;
-  --navy:#14305c; --chip:#f4f8fb; --shadow:0 1px 2px rgba(20,48,92,.06),0 6px 20px rgba(20,48,92,.06);
+  --bg1:#e6f3ee; --bg2:#eef5fb; --panel:#ffffff; --ink:#12284a; --muted:#5b6b82; --line:#c9dde6;
+  --blue:#1a6fd0; --blue-soft:#e4effb; --green:#1b9a55; --green-soft:#e3f5ea; --amber:#c0831a; --amber-soft:#fcf0d8;
+  --navy:#14305c; --chip:#f3f8fb; --shadow:0 8px 28px rgba(20,48,92,.22);
   --font:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0c1a1c; --panel:#13262b; --ink:#e6f0f2; --muted:#93a8ad; --line:#27434a;
-  --blue:#5aa6ff; --blue-soft:#14304f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
-  --navy:#9cc3ff; --chip:#183238; --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);color-scheme:dark}}
+  --bg1:#0b1a1b; --bg2:#0d1826; --panel:#12262b; --ink:#e6f0f2; --muted:#98adb2; --line:#28454c;
+  --blue:#5aa6ff; --blue-soft:#15314f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
+  --navy:#a4c8ff; --chip:#183339; --shadow:0 8px 28px rgba(0,0,0,.5);color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0c1a1c; --panel:#13262b; --ink:#e6f0f2; --muted:#93a8ad; --line:#27434a;
-  --blue:#5aa6ff; --blue-soft:#14304f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
-  --navy:#9cc3ff; --chip:#183238; --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);color-scheme:dark}
+  --bg1:#0b1a1b; --bg2:#0d1826; --panel:#12262b; --ink:#e6f0f2; --muted:#98adb2; --line:#28454c;
+  --blue:#5aa6ff; --blue-soft:#15314f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
+  --navy:#a4c8ff; --chip:#183339; --shadow:0 8px 28px rgba(0,0,0,.5);color-scheme:dark}
 
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:16px 40px}
-.wrap{max-width:1360px;margin-inline:auto;display:grid;gap:12px}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--ink);font-family:var(--font);font-size:12px;line-height:1.3;padding:0}
 h1,h2,h3,p{margin:0}
 button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px}
+:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-radius:8px}
 
-.panel{background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+#viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+#stage{width:1200px;height:900px;position:relative;flex:none;transform-origin:center center;display:grid;grid-template-rows:50px auto 1fr auto auto 18px;gap:8px;padding:10px 12px 6px}
+
+.panel{background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;min-width:0;position:relative}
 .panel.blue{border-color:var(--blue)} .panel.green{border-color:var(--green)} .panel.amber{border-color:var(--amber)}
-.ph{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:10px}
-.ph h2{font-size:15px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--navy)}
-.ph h2 em{font-style:normal;color:var(--blue)}
-.panel.green .ph h2 em{color:var(--green)} .panel.amber .ph h2 em{color:var(--amber)}
-.ph small{color:var(--muted);font-size:12.5px}
+.pt{font-size:13px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);white-space:nowrap}
+.pt em{font-style:normal;color:var(--blue)} .panel.green .pt em{color:var(--green)} .panel.amber .pt em{color:var(--amber)}
+.psub{color:var(--muted);font-size:11px;font-style:italic}
 
 /* header */
-.top{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;justify-content:space-between}
-.top h1{font-size:clamp(20px,3vw,30px);font-weight:800;letter-spacing:-.01em;color:var(--navy);padding-left:12px;border-left:4px solid var(--green)}
-.top p{color:var(--muted);font-size:13px;margin-top:2px}
-.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.tbtn{border:1.5px solid var(--line);background:var(--chip);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600}
-.tbtn:hover{border-color:var(--blue)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.top h1{font-size:22px;font-weight:800;letter-spacing:-.005em;color:var(--navy);padding-left:10px;border-left:4px solid var(--green);white-space:nowrap}
+.top h1 small{font-size:12px;font-weight:600;color:var(--muted);margin-left:10px;letter-spacing:.02em}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{font-weight:800;font-size:15px;line-height:1;color:var(--navy);position:relative;padding-left:10px}
+.logo::before{content:"";position:absolute;left:0;top:-2px;width:7px;height:7px;background:var(--green)}
+.logo b{color:var(--green)}
+.tb{border:1.5px solid var(--line);background:var(--chip);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+.tb:hover{border-color:var(--blue)}
 
 /* chips */
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--chip);border-radius:11px;padding:6px 11px;font-size:13px;font-weight:500;text-align:left;line-height:1.25;transition:background .15s,border-color .15s,transform .15s}
-.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--blue);flex:none}
-.chip.g::before{background:var(--green)} .chip.a::before{background:var(--amber)}
-.chip.draft{border-style:dashed}
-.chip:hover{border-color:var(--blue);transform:translateY(-1px)}
-.chip.rel{background:var(--blue-soft);border-color:var(--blue)}
-.chip.sel,.card.sel,.step.sel{border-color:var(--navy);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 35%,transparent)}
-body.has-sel #app .chip:not(.rel):not(.sel),body.has-sel #app .card:not(.rel):not(.sel),body.has-sel #app .step:not(.rel):not(.sel){opacity:.45}
-body.has-sel .card.rel,body.has-sel .step.rel{opacity:1;border-color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:5px 6px;align-content:flex-start}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--chip);border-radius:9px;padding:3px 9px;font-size:12px;font-weight:500;text-align:left;line-height:1.2;transition:background .12s,border-color .12s,opacity .12s}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);flex:none}
+.chip.A::before{background:var(--green)} .chip.R::before{background:var(--amber)}
+.chip.dr{border-style:dashed}
+.chip:hover{border-color:var(--blue);background:var(--blue-soft)}
+.chip.bd{background:transparent;font-weight:600}
 
-/* pipeline */
-.pipe{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.step{position:relative;text-align:left;border:1.5px solid var(--line);background:var(--chip);border-radius:14px;padding:10px 12px 11px;display:grid;gap:3px;align-content:start}
-.step b{font-size:13.5px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.02em}
-.step span{font-size:12.5px;color:var(--muted)}
-.step i{font-style:normal;font-size:11.5px;font-weight:700;color:var(--green)}
-.step:hover{border-color:var(--blue)}
-.step:not(:last-child)::after{content:"";position:absolute;right:-9px;top:50%;width:10px;height:10px;border-top:2.5px solid var(--green);border-right:2.5px solid var(--green);transform:translateY(-50%) rotate(45deg);z-index:1}
+/* cards */
+.card{border:1.5px solid var(--blue);border-radius:12px;padding:7px 9px 9px;display:grid;gap:6px;align-content:start;min-width:0;background:var(--panel);transition:opacity .12s,background .12s}
+.card.G{border-color:var(--green)} .card.O{border-color:var(--amber)}
+.ch{display:flex;gap:8px;align-items:center;border:0;background:none;padding:0;text-align:left;width:100%}
+.ico{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
+.ico svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.card.G .ico{background:var(--green-soft);color:var(--green)} .card.O .ico{background:var(--amber-soft);color:var(--amber)}
+.ch b{font-size:12px;font-weight:800;letter-spacing:.015em;text-transform:uppercase;color:var(--navy);line-height:1.15}
+.ch:hover b{color:var(--blue)}
 
-/* columns */
-.cols{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:12px;align-items:start}
-.cols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
-.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.grid1{display:grid;gap:9px}
+/* grid areas */
+.mid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:8px;min-height:0}
+.areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:7px;margin-top:6px;min-height:0}
+.struct{display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;min-height:0}
+.panel.fill{display:flex;flex-direction:column;min-height:0}
+.two{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:8px}
+.band{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
+.band .chips{align-items:center}
+.found{display:grid;grid-template-columns:1fr auto;gap:6px 16px}
+.found .row{display:flex;gap:6px;align-items:center}
+.bodies{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
 
-.card{border:1.5px solid var(--line);background:var(--panel);border-radius:14px;padding:10px 12px 12px;display:grid;gap:8px;align-content:start;min-width:0;transition:opacity .15s}
-.card.blue{border-color:var(--blue)} .card.green{border-color:var(--green)} .card.amber{border-color:var(--amber)}
-.card.rel{background:var(--blue-soft)}
-.chead{display:flex;gap:10px;align-items:flex-start;width:100%;border:0;background:none;padding:0;text-align:left}
-.code{flex:none;width:30px;height:30px;border-radius:9px;background:var(--navy);color:var(--panel);display:grid;place-items:center;font-weight:800;font-size:14px}
-.card.green .code{background:var(--green)} .card.amber .code{background:var(--amber)} .card.blue .code{background:var(--blue)}
-.chead b{font-size:13px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);display:block;line-height:1.25}
-.chead small{display:block;color:var(--muted);font-size:12px;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px}
-.chead:hover b{color:var(--blue)}
-.card .chip{font-size:12.5px;padding:5px 9px}
+/* selection */
+body.has-sel .chip:not(.rel):not(.sel),body.has-sel .card:not(.rel):not(.sel){opacity:.35}
+body.has-sel .chip.rel,body.has-sel .card.rel{opacity:1;border-color:var(--blue);background:var(--blue-soft)}
+.chip.sel,.card.sel{opacity:1!important;border-color:var(--navy);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+body.has-sel .card.rel .chip:not(.rel):not(.sel){opacity:.6}
 
-/* timelines */
-.tl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px}
-.tlc{border:1.5px solid var(--line);background:var(--chip);border-radius:14px;padding:10px 12px;text-align:left;display:grid;gap:2px}
-.tlc strong{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
-.tlc strong small{font-size:12px;font-weight:700;color:var(--green);margin-left:4px}
-.tlc span{font-size:12.5px;color:var(--muted)}
-.tlc:hover{border-color:var(--blue)}
+.legend{display:flex;gap:4px 20px;align-items:center;font-size:11px;color:var(--muted);padding-left:6px;white-space:nowrap}
+.legend b{color:var(--ink)} .legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%} .dash{width:24px;height:12px;border:1.5px dashed var(--muted);border-radius:5px}
 
-.legend{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:12.5px;color:var(--muted);padding-inline:6px}
-.legend b{color:var(--ink)}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.dash{width:22px;height:12px;border:1.5px dashed var(--muted);border-radius:5px;display:inline-block}
-
-/* drawer */
-#veil{position:fixed;inset:0;background:rgba(8,20,40,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
-#veil.on{opacity:1;pointer-events:auto}
-#drawer{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:var(--panel);border-left:1.5px solid var(--line);box-shadow:-10px 0 40px rgba(8,20,40,.25);transform:translateX(105%);transition:transform .25s ease;z-index:30;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
-#drawer.on{transform:none}
-.dh{padding:16px 18px 12px;border-bottom:1.5px solid var(--line);display:grid;gap:5px}
-.dkind{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
-.dh h2{font-size:20px;font-weight:800;color:var(--navy);line-height:1.2;text-wrap:balance;padding-right:36px}
-.dh p{color:var(--muted);font-size:13.5px}
-.x{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);background:var(--chip);font-size:18px;line-height:1}
-.db{overflow:auto;padding:14px 18px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;align-content:start}
-.db h3{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.db ul{margin:0;padding:0;list-style:none;display:grid;gap:7px}
-.db li{padding-left:16px;position:relative;font-size:13.5px}
-.db li::before{content:"";position:absolute;left:2px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--green)}
-.rules li::before{background:var(--blue)}
-.rules button{border:0;background:var(--blue-soft);color:var(--navy);border-radius:6px;padding:0 6px;font-size:12px;font-weight:700;margin-right:4px}
-.flag{background:var(--amber-soft);border:1.5px solid var(--amber);border-radius:12px;padding:10px 12px;font-size:13px}
+/* detail panel (inside stage) */
+#info{position:absolute;top:62px;bottom:30px;width:410px;background:var(--panel);border:2px solid var(--navy);border-radius:16px;box-shadow:var(--shadow);z-index:10;display:none;flex-direction:column;overflow:hidden}
+#info.on{display:flex}
+#info.right{right:12px} #info.left{left:12px}
+.ih{padding:12px 14px 10px;border-bottom:1.5px solid var(--line);position:relative;display:grid;gap:3px}
+.ik{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green)}
+.ih h2{font-size:17px;font-weight:800;color:var(--navy);line-height:1.15;padding-right:30px;text-wrap:balance}
+.ih p{color:var(--muted);font-size:12px}
+.xb{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:var(--chip);font-size:16px;line-height:1;padding:0}
+.ib{overflow:auto;padding:10px 14px 14px;display:grid;gap:11px;align-content:start}
+.ib h3{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.ib ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.ib li{position:relative;padding-left:13px;font-size:12px}
+.ib li::before{content:"";position:absolute;left:1px;top:.5em;width:5px;height:5px;border-radius:50%;background:var(--green)}
+.basis li::before{background:var(--blue)}
+.basis button{border:0;background:var(--blue-soft);color:var(--navy);border-radius:5px;padding:0 5px;font-size:11px;font-weight:700;margin-right:4px}
+.flag{background:var(--amber-soft);border:1.5px dashed var(--amber);border-radius:10px;padding:7px 10px;font-size:11.5px}
 .flag b{color:var(--amber)}
-.src{font-size:12px;color:var(--muted)}
-
-/* verify list */
-.vlist{display:grid;gap:8px}
-.vlist button{display:flex;gap:10px;text-align:left;border:1.5px dashed var(--amber);background:var(--amber-soft);border-radius:12px;padding:8px 12px;font-size:13px}
-.vlist button b{color:var(--amber);flex:none}
-
-@media (max-width:1100px){.cols,.cols2{grid-template-columns:1fr}.pipe{grid-template-columns:repeat(3,minmax(0,1fr))}.step:nth-child(3)::after{display:none}}
-@media (max-width:760px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:520px){.grid3{grid-template-columns:1fr}.pipe{grid-template-columns:1fr 1fr}.step::after{display:none!important}
-  #drawer{top:auto;height:82%;width:100%;border-left:0;border-top:1.5px solid var(--line);border-radius:20px 20px 0 0;transform:translateY(105%)}#drawer.on{transform:none}}
+#info .chip{opacity:1!important;background:var(--chip)} #info .chip:hover{background:var(--blue-soft)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
-<div class="wrap" id="app">
+<div id="viewport">
+<div id="stage">
   <header class="panel top">
-    <div>
-      <h1>THE REGISTRAR: HOW THE BLOCK WORKS</h1>
-      <p>International Digital Technologies Center "Enterprise Uzbekistan". Tasks, participant categories and the approach for each. Click any item.</p>
-    </div>
-    <div class="tools">
-      <button class="tbtn" id="clear" type="button">Clear selection</button>
-      <button class="tbtn" id="theme" type="button">Theme</button>
-    </div>
+    <h1>THE REGISTRAR MAP OF ENTERPRISE UZBEKISTAN<small>REGISTRATION AND MONITORING OF PARTICIPANTS</small></h1>
+    <div class="brand"><button class="tb" id="clear" type="button">Clear</button><button class="tb" id="theme" type="button">Theme</button><div class="logo">Enterprise<br><b>Uzbekistan</b></div></div>
   </header>
 
-  <section class="panel blue" aria-labelledby="h-f">
-    <div class="ph"><h2 id="h-f">Legal foundation <em>acts the Registrar works under</em></h2><small>Order of priority: Constitution, Law of the IDTC, Presidential acts, Center resolutions, English common law, Uzbek legislation (Law, Art. 2)</small></div>
-    <div class="chips" id="f-acts"></div>
-    <div class="ph" style="margin:12px 0 8px"><small>Referenced in the acts above, files not yet reviewed:</small></div>
-    <div class="chips" id="f-pend"></div>
+  <section class="panel blue found" id="found">
+    <div>
+      <div class="pt" style="margin-bottom:6px">FOUNDATIONAL REGULATIONS <em>FOR ALL PARTICIPANTS OF THE CENTER</em></div>
+      <div class="chips" id="f-acts"></div>
+      <div class="chips" id="f-pend" style="margin-top:5px"></div>
+    </div>
+    <div class="bodies"><div class="psub">Bodies that decide</div><div class="chips" id="f-bod" style="justify-content:flex-end;max-width:300px"></div></div>
   </section>
 
-  <section class="panel green" aria-labelledby="h-t">
-    <div class="ph"><h2 id="h-t">Registrar tasks <em>from application to exit</em></h2><small>Every decision follows the Decision-Making Procedures</small></div>
-    <div class="pipe" id="pipe"></div>
-  </section>
-
-  <div class="cols">
-    <section class="panel blue" aria-labelledby="h-a">
-      <div class="ph"><h2 id="h-a">Main areas of activity <em>what a Certificate can cover</em></h2><small>Dot colour shows who decides (see legend)</small></div>
-      <div class="grid3" id="areas"></div>
+  <div class="mid">
+    <section class="panel blue fill">
+      <div class="pt" style="text-align:center;font-size:16px">MAIN AREAS OF ACTIVITY <em>WHAT THE REGISTRAR CERTIFIES</em></div>
+      <div class="areas" id="areas"></div>
     </section>
-    <section class="panel green" aria-labelledby="h-c">
-      <div class="ph"><h2 id="h-c">Company structures <em>who we incorporate or register</em></h2></div>
-      <div class="grid1" id="corp"></div>
+    <section class="panel green fill">
+      <div class="pt" style="text-align:center;font-size:14px">CORPORATE AND <em>INVESTMENT STRUCTURES</em></div>
+      <div class="struct" id="struct"></div>
     </section>
   </div>
 
-  <div class="cols2">
-    <section class="panel amber" aria-labelledby="h-s">
-      <div class="ph"><h2 id="h-s">Status holders <em>investors, partners, special cases</em></h2><small>Status or permit only, none authorises activity by itself</small></div>
-      <div class="grid3" id="status" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))"></div>
-    </section>
-    <section class="panel" aria-labelledby="h-w">
-      <div class="ph"><h2 id="h-w">Who decides <em>the four decision-makers</em></h2></div>
-      <div class="grid1" id="who"></div>
-    </section>
+  <div class="two">
+    <section class="panel blue band" id="sbx"><div><div class="pt">REGULATORY<br>SANDBOX</div><div class="psub">Admitted projects only</div></div><div class="chips" id="sbx-c"></div></section>
+    <section class="panel amber band" id="acc" style="grid-template-columns:1fr"><div><div class="pt" style="margin-bottom:5px">ACCREDITED PARTNERS <em>AND PERMIT HOLDERS</em></div><div class="chips" id="acc-c"></div></div></section>
   </div>
 
-  <section class="panel" aria-labelledby="h-d">
-    <div class="ph"><h2 id="h-d">Deadlines and validity <em>numbers to remember</em></h2></div>
-    <div class="tl" id="tl"></div>
+  <section class="panel band" id="life" style="grid-template-columns:170px 1fr">
+    <div><div class="pt">REGISTRAR ACTIONS</div><div class="psub">Triggered by events in a Participant's life</div></div>
+    <div class="chips" id="life-c"></div>
   </section>
 
-  <section class="panel amber" aria-labelledby="h-v">
-    <div class="ph"><h2 id="h-v">Points to verify <em>inconsistencies found across the acts</em></h2><small>Click for the exact articles</small></div>
-    <div class="vlist" id="vlist"></div>
-  </section>
-
-  <div class="legend" aria-label="Legend">
-    <b>Decision path:</b>
-    <span><i class="dot" style="background:var(--blue)"></i>Registrar decides</span>
-    <span><i class="dot" style="background:var(--green)"></i>Registrar decides, part needs another regulator's permit</span>
-    <span><i class="dot" style="background:var(--amber)"></i>Administration, Governing Council or external regulator decides</span>
-    <span><i class="dash"></i>Draft act or not yet reviewed</span>
-    <span class="src">Source texts are unofficial English versions. Several acts are drafts.</span>
+  <div class="legend">
+    <b>Applicability:</b>
+    <span><i class="dot" style="background:var(--blue)"></i>Foundational (generally applicable)</span>
+    <span><i class="dot" style="background:var(--green)"></i>Activity-based</span>
+    <span><i class="dot" style="background:var(--amber)"></i>Relevance-based (Participant's objectives)</span>
+    <span><i class="dash"></i>Caveat: draft, file not yet received, role to confirm</span>
   </div>
+
+  <aside id="info" aria-live="polite">
+    <div class="ih"><div class="ik" id="i-k"></div><h2 id="i-t"></h2><p id="i-s"></p><button class="xb" id="xb" type="button" aria-label="Close">&times;</button></div>
+    <div class="ib" id="i-b"></div>
+  </aside>
+</div>
 </div>
 
-<div id="veil"></div>
-<aside id="drawer" aria-hidden="true" aria-live="polite">
-  <button class="x" id="close" type="button" aria-label="Close">&times;</button>
-  <div class="dh"><div class="dkind" id="d-kind"></div><h2 id="d-title"></h2><p id="d-sum"></p></div>
-  <div class="db" id="d-body"></div>
-</aside>
-
 <script>
-/* ---------- DATA ---------- */
-// kind labels
-var K={act:'Legal act',step:'Registrar task',area:'Area of activity',corp:'Company structure',status:'Status holder',who:'Decision-maker',tl:'Deadline',ver:'Point to verify',pend:'Referenced act, not yet reviewed'};
-// short names of acts for rule tags
-var A={law:'Law',op:'Operating',co:'Companies',pa:'Permitted Act.',pr:'Participants',ce:'Cert. Rules',dmp:'DMP',ps:'Public Services',ct:'Contract'};
+var K={act:'Foundational act',body:'Decision-making body',pend:'Referenced act, file not yet received',dir:'Strategic Direction',code:'Operating Code',cond:'Special condition',corp:'Structure',type:'Structure feature',acc:'Permit holder',act2:'Registrar action'};
+var SHORT={law:'Law of the IDTC',op:'Operating Regs',co:'Companies Regs',pa:'Permitted Activities',pr:'Participants Regs',ce:'Certificates Rules',dmp:'Decision-Making',ps:'Public Services'};
+var I={};
+function N(id,kind,t,sum,ap,basis,rel,o){I[id]=Object.assign({id:id,kind:kind,t:t,sum:sum,ap:ap||[],r:basis||[],rel:rel||[]},o||{})}
 
-var I={}; // id -> item
-function add(o){I[o.id]=o;return o}
+/* ===== foundational acts and bodies ===== */
+N('law','act','Constitutional Law on the IDTC','Adopted 4 Aug 2026, approved by the Senate 8 Aug 2026. Top of the Center hierarchy after the Constitution.',
+ ['The Law does not name the Registrar. The office comes from the Operating Regulations (Art. 6) under the Law\'s delegation to Center resolutions.','Registrar services fall under Art. 68: registration, recording and accreditation, and licence-type documents.','Measures of liability and suspension or termination of Participant status belong to the Administration of the Center (Art. 78–79).'],
+ [['law','Art. 2 priority of law; Art. 22–23 Residents and register'],['law','Art. 26–30 investors; Art. 33 accredited partners'],['law','Art. 39–43 sandbox; Art. 66–70 services and complaints']],['b_adm','op','st_inv','x_acc','sbx']);
+N('op','act','Operating Regulations','31.08.2026. The core act of the Registrar: appointment, objectives, powers, Certificates, supervision, enforcement.',
+ ['Art. 6–7: office within the Administration, functional independence, objectives and powers.','Art. 8–9: no business without incorporation or registration; activity needs a Certificate or Permission.','Part 5: inspection, directions, information, strike-off, undertakings. Censures and fines are applied by the Administration (Art. 38–39).','Art. 49–57 reporting, conflicts, budget, liability; Art. 65–68 inconsistencies, reasons, publication, Public Registers.'],
+ [['op','Art. 6–7, 9, 10–18, 19–21, 23–34, 37–40, 59, 68']],['b_reg','co','ce','dmp']);
+N('co','act','Companies Regulations','31.08.2026. Company code administered by the Registrar.',
+ ['Parts 3–4: types of company, incorporation, certificate of incorporation, Articles.','Part 11 prescribed types (SPV, Holding Company); Part 12 Recognised Companies; Part 13 transfer of incorporation.','Art. 113 Registrar consent for mergers with Foreign Companies; Part 14 directions, strike-off, restoration; Art. 154 Public Register.'],
+ [['co','Art. 7, 11–13, 113, 149–151, 154–155; Parts 11–13']],['s_op','s_hold','s_spv','s_rec','l_adm']);
+N('pa','act','Permitted Activities Regulations','Draft Governing Council resolution. Exhaustive List of Permitted Activities: 9 Strategic Directions, 13 Operating Codes (A to M).',
+ ['A Resident acts only within the codes written in its Certificate or Permission.','The Registrar assigns codes, sets reasoned conditions and records each as an Activity Endorsement.','New standalone activity or material change needs prior Registrar approval (Art. 7(4)–(5)).','A new category needs a Governing Council decision.'],
+ [['pa','Art. 6–7 conditions and powers; Art. 9 special conditions; Art. 10 excluded activities; Art. 11 monitoring; Art. 13 classifier']],['code_A','l_cert','l_act','b_gc'],{draft:1});
+N('pr','act','Regulations on Participants','Draft working version. Admission, registration, rights and duties of Residents and Investors.',
+ ['Participants are Residents and Investors. Accredited partners are not Participants (Art. 12).','Art. 13–19: application, preliminary review, fit and proper test, beneficial ownership, decision, conditions.','Art. 21–26: Public Register, certificates (12–36 months), digital account, electronic notices, 30-day change notice.'],
+ [['pr','Art. 7–12, 13–19, 21–26']],['l_adm','l_chg','l_bo','st_inv','reg'],{draft:1});
+N('ce','act','Rules on Certificates, Permissions and Exemptions','Draft Rules of the Administration. Procedure for the five instruments the Registrar issues.',
+ ['Five instruments: Certificate of Permitted Activities, Permission, Accreditation Permit, Investor Certificate, Exemption.','Instruments do not replace each other. Incorporation sets the structure, Certificates authorise activity (Art. 6(2)–(3)).','One common procedure: submit, acknowledge, completeness, assessment, decision, fees, digitally signed issue.','None is a regulator\'s licence (Art. 6(4)).'],
+ [['ce','Art. 6–9, 10–18, Parts 4–9']],['l_cert','l_renew','x_perm','a_perm','a_acc','a_ex','st_inv'],{draft:1});
+N('dmp','act','Decision-Making Procedures','How the Registrar decides: principles, case file, notice, hearing, reasons, publication.',
+ ['Ten principles: legality, fairness, transparency, proportionality, consistency, efficiency, risk-based supervision and others (Art. 8).','Where a measure belongs to the Administration, the Registrar prepares the case file and submits it (Art. 7).','Silence is not approval (Art. 16(5)). Each case has a numbered file in the electronic system.'],
+ [['dmp','Art. 7–9, 16–17, 22, 26–28']],['b_reg','l_cert','l_susp','l_fine']);
+N('ps','act','Regulations on Public Services','Temporary. How state services reach Participants through the Center\'s platform.',
+ ['Services run through the Unified Portal, the "Licence" system, the Public Services Centers branch and the Center\'s platform.','Registering a foreign legal entity as a Resident also registers it in OneID.','Electronic documents equal paper; English is the record language. Errors in state data are fixed in 5 working days.'],
+ [['ps','Ch. 3 electronic systems; Ch. 4 cooperation'],['law','Art. 66–69']],['law','reg']);
+N('reg','act','Public Register','The official record kept by the Registrar. What a Participant can rely on to prove its status.',
+ ['Shows name, number, legal form, status, registration date, certificate validity, permitted activities (codes and endorsement status), office, email.','The Registrar also keeps registers of Permissions, Accreditation Permits, Exemptions and auditors.','Non-public data is held separately where law, AML/CFT, security or commercial sensitivity requires.'],
+ [['pr','Art. 21'],['op','Art. 20, 68'],['co','Art. 154'],['ce','Art. 19']],['ps','l_chg','l_strike']);
+N('p_fees','pend','Rules on Fees and Fines','Referenced for fees, late-renewal fines and measures of liability. File not yet received.',
+ ['Needed to complete the fines, renewal and enforcement actions.','Cited in Operating Regs Art. 39(3), Certificates Rules Art. 17, 41, DMP Art. 26.'],[],['l_renew','l_fine'],{draft:1});
+N('p_inc','pend','Rules on Application for Incorporation and Registration','Referenced for incorporation forms, Standard Articles and procedure. File not yet received.',
+ ['Needed to complete admission and all company structures.','Cited in Certificates Rules Art. 3 and Companies Regs Art. 9(3).'],[],['l_adm','s_op'],{draft:1});
+N('p_inv','pend','Investment Regulations','Referenced for investor categories, Investor Status and funds. File not yet received.',
+ ['Needed for the Investors card and for venture structures.','Cited in Regulations on Participants Art. 9.'],[],['s_inv','d_vent'],{draft:1});
+N('p_oth','pend','Tax & Customs, Data Protection, AML/CFT','Other special acts that apply next to Registrar decisions. Files not yet received.',
+ ['The Registrar does not set tax or customs consequences (Permitted Activities Art. 7(10), 10(4)–(5)).','AML/CFT, sanctions and information exchange are a Registrar objective (Operating Regs Art. 7(1)(f)).'],[],['x_data','x_tax'],{draft:1});
 
-/* Legal foundation */
-add({id:'law',kind:'act',t:'Constitutional Law on the IDTC',cls:'',sum:'Adopted by the Legislative Chamber 4 Aug 2026, approved by the Senate 8 Aug 2026. Top of the Center hierarchy after the Constitution.',
- ap:['The Law does not name the Registrar. The office is created by the Operating Regulations (Art. 6) under the Law\'s delegation to Center resolutions.','Registrar services fall under Art. 68: registration, recording and accreditation of persons, and licence/permit-type documents.','Measures of liability and suspension or termination of Participant status belong to the Administration of the Center (Art. 78–79), not the Registrar.'],
- r:[['law','Art. 2: priority of applicable law'],['law','Art. 22–23: Residents, Register of Participants'],['law','Art. 26–30: investor categories; Art. 28 start-up investors need no separate registration'],['law','Art. 33: accredited partners'],['law','Art. 39–43: Regulatory Sandbox'],['law','Art. 66–70: services, ancillary services, complaints'],['law','Art. 77–79: disputes and measures of liability']],
- rel:['op','pr','who_adm','st_acc','st_sbx','st_inv']});
-add({id:'op',kind:'act',t:'Operating Regulations',cls:'',sum:'31.08.2026. The core act of the Registrar: appointment, objectives, powers, Certificates, supervision and enforcement.',
- ap:['Art. 6–7: office of the Registrar sits within the Administration of the Center and keeps functional independence.','Art. 8–9: no business without incorporation or registration; activities require a Certificate or Permission.','Part 5: inspections, directions, information requests, strike-off, undertakings; fines and censures are applied by the Administration (Art. 38–39).','Art. 49–57: reporting, record keeping, conflicts of interest, budget, fees, liability, independent review.','Art. 58: waivers; Art. 65–68: inconsistencies, notice of decisions with reasons, publication, Public Registers.'],
- r:[['op','Art. 6–7 Registrar'],['op','Art. 9 Certificates, Permissions, Exemptions'],['op','Art. 10–18 names, office, email, changes, Confirmation Statement'],['op','Art. 19–21 auditors'],['op','Art. 23–34 inspections and powers'],['op','Art. 37–39 undertakings, censures, fines'],['op','Art. 40 appeal to Court'],['op','Art. 59 beneficial ownership, Art. 68 Public Registers']],
- rel:['s1','s2','s3','s4','s5','s6','who_reg','co','ce','dmp']});
-add({id:'co',kind:'act',t:'Companies Regulations',cls:'',sum:'31.08.2026. English-law style company code administered by the Registrar.',
- ap:['Part 3–4: types of companies, incorporation, certificate of incorporation, Articles of Association.','Part 11: prescribed types (SPV, Holding Company). Part 12: Recognised Companies. Part 13: transfer of incorporation in and out.','Part 8 / Art. 113: Registrar consent for mergers involving Foreign Companies. Part 14: directions, strike-off and restoration.','Art. 154: Public Register. Art. 155: fees and fines are paid to the Registrar.'],
- r:[['co','Art. 7 types of companies'],['co','Art. 11–13 incorporation, effect, Certificates'],['co','Part 11 SPV and Holding Company'],['co','Part 12 Recognised Companies'],['co','Part 13 transfer of incorporation'],['co','Art. 149–151 directions, strike-off']],
- rel:['c_priv','c_pub','c_hold','c_spv','c_rec','c_cont','s1','s6']});
-add({id:'pa',kind:'act',t:'Permitted Activities Regulations',cls:'draft',sum:'Draft resolution of the Governing Council. Exhaustive List of Permitted Activities, categories A to M.',
- ap:['A Resident acts only within the Operating Codes written in its Certificate or Permission.','Registrar assigns the declared activity to one or more categories, may set reasoned conditions, and records each as an Activity Endorsement.','New standalone activity or material change needs prior Registrar approval (Art. 7(4)–(5)).','Registrar does not determine tax liability (Art. 7(10)).','A new category needs a Governing Council decision.'],
- r:[['pa','Art. 6 conditions, substance, separate accounting'],['pa','Art. 7 powers of the Registrar'],['pa','Art. 8 categories A to M'],['ce','Art. 8–9 activity and endorsements']],
- rel:['s2','a_A','a_B','a_C','a_D','a_E','a_F','a_G','a_H','a_I','a_J','a_K','a_L','a_M','ce'],draft:1});
-add({id:'pr',kind:'act',t:'Regulations on Participants',cls:'draft',sum:'Draft working version. Admission, registration, rights and obligations of Residents and Investors, and their lifecycle.',
- ap:['Participants are Residents and Investors. Accredited partners are not Participants (Art. 12).','Art. 13–19: application, preliminary review, fit and proper test, beneficial ownership, decision, conditions.','Art. 21–26: Public Register content, certificates, 12 to 36 month validity, digital account, electronic notices, 30-day change notification.','Several articles say "Administration of the Center or the Registrar" decides, which needs aligning (see Points to verify).'],
- r:[['pr','Art. 7–12 who is a Participant'],['pr','Art. 13–19 admission'],['pr','Art. 21 Public Register'],['pr','Art. 22–23 certificates and validity'],['pr','Art. 26 changes in registered details']],
- rel:['s1','s3','st_inv','st_acc','v2'],draft:1});
-add({id:'ce',kind:'act',t:'Rules on Certificates, Permissions and Exemptions',cls:'draft',sum:'Draft Rules of the Administration. Procedure for the five instruments the Registrar issues.',
- ap:['Five instruments: Certificate of Permitted Activities, Permission, Accreditation Permit, Investor Certificate, Exemption.','Instruments work on different levels and do not replace each other (Art. 6(2)–(3)).','One common procedure: submit, acknowledge, completeness, assessment, decision, fees, digitally signed issue (Art. 10–17).','Part 9: variation, suspension, revocation. Instruments are not licences of a competent regulator (Art. 6(4)).'],
- r:[['ce','Art. 6 instruments'],['ce','Art. 7 duty to hold a Certificate'],['ce','Art. 10–18 common procedure'],['ce','Part 4–8 each instrument'],['ce','Part 9 variation, suspension, revocation']],
- rel:['s2','st_perm','st_acc','st_inv','st_ex','t_dec','t_cert','pa'],draft:1});
-add({id:'dmp',kind:'act',t:'Decision-Making Procedures',cls:'',sum:'How the Registrar makes every decision: principles, case file, notice, hearing, reasons, publication.',
- ap:['Ten principles: legality, purpose, fairness, transparency, proportionality, consistency, efficiency, risk-based supervision, confidentiality, legal certainty (Art. 8).','Where a measure belongs to the Administration, the Registrar prepares the case file and submits it, but does not decide (Art. 7(4)–(7)).','Silence is not approval (Art. 16(5)).','Each decision has a case file with a unique number in the electronic system (Art. 9).'],
- r:[['dmp','Art. 7 independence and accountability'],['dmp','Art. 8 principles'],['dmp','Art. 16 timeframes'],['dmp','Art. 17 proposed refusal'],['dmp','Art. 22 expedited decisions'],['dmp','Art. 28 notice and reasons']],
- rel:['s2','s4','s5','s6','who_reg','who_adm','t_dec','v1']});
-add({id:'ps',kind:'act',t:'Regulations on Public Services',cls:'',sum:'Temporary regulations. How state public services reach Participants through the Center\'s platform.',
- ap:['Services run through the Unified Portal, the "Licence" system, the Public Services Centers branch and the Center\'s platform.','Registering a foreign legal entity as a Resident also registers it in OneID.','Electronic documents have the same force as paper. English is the record language.','Errors in state data are corrected within 5 working days; resubmission after deficiencies gets 5 working days and no extra fee.'],
- r:[['ps','Ch. 3 electronic systems'],['ps','Ch. 4 interdepartmental cooperation'],['law','Art. 66–69 services']],
- rel:['s1','s3','law']});
-add({id:'ct',kind:'act',t:'Contract Regulations',cls:'',sum:'31.08.2026. Private-law rules on contracts, damages and agency between Participants.',
- ap:['The Registrar has no powers under this act. It is the substantive law Residents use in their own contracts.','Relevant to the Registrar only as background: it applies to the contracts of Residents and Investors the Registrar registers.'],
- r:[['ct','Part 2 contracts generally'],['ct','Part 11 damages'],['ct','Part 12 agency']],rel:[]});
+N('b_reg','body','Registrar','Inside the Administration of the Center. Functionally independent in its specific decisions.',
+ ['Incorporation and registration; Certificates, Permissions, Accreditation Permits, Investor Certificates.','Names, SPV designation, directions, information requests, undertakings, strike-off.','Keeps the registers. Follows the Decision-Making Procedures.'],
+ [['op','Art. 6–7, 56'],['dmp','Art. 7']],['op','dmp','l_adm','l_cert','l_renew','l_act','l_info','l_dir','l_susp','l_strike']);
+N('b_adm','body','Administration of the Center','Executive body. Owns the heavy measures and adopts Rules.',
+ ['Applies censures, fines, suspension or termination of Participant status, loss of benefits.','Approves Exemptions and some strike-offs; adopts Rules; appoints the Registrar after consulting the Secretary of the Governing Council.','The Registrar prepares the case file for it; the Procedures are not a delegation of its powers.'],
+ [['op','Art. 38–39, 46–48'],['law','Art. 20, 79'],['dmp','Art. 7(4)–(7)']],['law','a_ex','l_fine','l_susp','l_strike']);
+N('b_gc','body','Governing Council','Adopts the regulations and the List of Permitted Activities.',
+ ['Approves the Operating, Companies and Permitted Activities regulations and adds categories or company types.','Decides admission to the Regulatory Sandbox and adopts the Regulations on Fines.'],
+ [['law','Art. 15–17']],['pa','sbx','p_fees']);
+N('b_court','body','Court','Reviews Registrar decisions; orders restoration, winding up and enforcement.',
+ ['Applications to Court against a Registrar decision (Operating Regs Art. 40).','Restoration of struck-off Residents; enforcement of directions and undertakings.','Complaints about services of the Center\'s bodies go to the Tashkent International Commercial Court (Law Art. 70).'],
+ [['op','Art. 34, 40–45'],['law','Art. 70, 77']],['l_dir','l_rest']);
 
-/* pending references */
-add({id:'p_fees',kind:'pend',t:'Rules on Fees and Fines / Regulations on Fines',cls:'draft',sum:'Referenced for fees, late-renewal fines and every measure of liability. File not yet received.',ap:['Needed to complete the Enforce and Exit tasks: amounts, procedure, who may waive.','Cited in Operating Regulations Art. 39(3), Certificates Rules Art. 17 and 41, DMP Art. 26.'],r:[],rel:['s5','t_cert'],draft:1});
-add({id:'p_inc',kind:'pend',t:'Rules on Application for Incorporation and Registration',cls:'draft',sum:'Referenced for incorporation forms, Standard Articles and registration procedure. File not yet received.',ap:['Needed to complete task 1 and all company structure cards.','Cited in Certificates Rules Art. 3 and Companies Regulations Art. 9(3).'],r:[],rel:['s1','c_priv','c_pub'],draft:1});
-add({id:'p_inv',kind:'pend',t:'Investment Regulations',cls:'draft',sum:'Referenced for investor categories, Investor Status and funds. File not yet received.',ap:['Needed for the Status holders panel and for venture and fund structures.','Cited in Regulations on Participants Art. 9.'],r:[],rel:['st_inv','a_H'],draft:1});
-add({id:'p_oth',kind:'pend',t:'Tax & Customs, Data Protection, AML/CFT and other special acts',cls:'draft',sum:'Other special legislation that applies alongside Registrar decisions. Files not yet received.',ap:['The Registrar does not set tax or customs consequences; those follow their own regulations.','AML/CFT, sanctions and information-exchange compliance is a Registrar objective (Operating Regulations Art. 7(1)(f)).'],r:[],rel:['s4'],draft:1});
+/* ===== Operating Codes ===== */
+var CODES={
+A:['Artificial Intelligence, Data and Analytics','Data pipelines, AI/ML models, AI-as-a-service, data labelling, digital twins.','Standard. Registrar records the code and flags the data categories handled in later material-change checks.'],
+B:['SaaS and Digital Products','SaaS, APIs, SDKs, proprietary digital products.','Standard. White-label and marketplace models count only if the Resident owns the product or does real development, integration or support.'],
+C:['Game Development and Creative Technologies','Games, engines, publishing, esports technology.','C.1 to C.5 standard. Gambling, betting, lotteries and cash-out of in-game value need a separate Competent Regulator permission (C.6).'],
+D:['Global Technology and Business Services','Custom software, IT outsourcing, EOR, BPO and KPO, shared services, headquarters.','D.1 to D.7 standard. D.8 audit, legal, tax and financial services need a regulator permission plus a separate endorsement.'],
+E:['Digital Infrastructure, Cloud and HPC','Cloud, data centres, computing capacity, DevOps and SRE.','Standard. E.5 cross-border data only as far as special legislation and Uzbek law allow.'],
+F:['Cybersecurity and Digital Trust','SOC, penetration testing, KYC/KYB tech, privacy tech.','F.1 to F.4 standard. F.5 certification, trust and cryptographic services need the Competent Regulator\'s permission where required.'],
+G:['IP Holding and Commercialisation','IP ownership, licensing, technology transfer, group IP management.','Standard with substance tests: IP register, chain of title, documented intra-group deals. Owning IP does not by itself bring a tax regime.'],
+H:['Venture Investment and Startup Ecosystem','Accelerators, own-funds venture investing, SPVs for holdings.','H.1 to H.5 standard. H.6 managing third-party funds, brokerage or advice is category M and needs a licence.'],
+I:['Innovation, R&D and Advanced Technologies','R&D, hardware-software, robotics, IoT, smart energy.','Standard. Pilot production for prototypes is fine; industrial or mass production only in a recognised Production Area.'],
+J:['Education, Talent and EdTech','EdTech platforms, training, HR-tech, talent platforms.','Standard. Education that legislation licenses or accredits (J.4) starts only after that document exists.'],
+K:['Digital Platforms, E-Commerce and Content','Platforms, marketplaces, digital media, adtech.','Standard. General advertising for third parties counts only with a material technological component (K.5).'],
+L:['FinTech, RegTech and DLT','Payment tech, blockchain, tokenisation, financial products in the sandbox.','L.1 is software only, without accepting client money or assets. L.4 testing happens in the Regulatory Sandbox on the Competent Regulator\'s decision.'],
+M:['Regulated Financial and Other Special Activities','Banking, payments, insurance, securities, funds, virtual assets.','Conditionally permitted. The Certificate is issued or activated only after the Competent Regulator confirms. A Certificate never replaces the licence.']};
+Object.keys(CODES).forEach(function(k){var c=CODES[k];
+ N('code_'+k,'code','Code '+k+'. '+c[0],c[1],[c[2],'Registrar action: assign the code as principal or additional activity, set conditions, record the Activity Endorsement, publish code and status in the Public Register.'],
+ [['pa','Art. 8 category '+k+'; Art. 13 classifier'],['ce','Art. 8–9 endorsements']],['pa','l_cert'])});
 
-/* Registrar tasks */
-add({id:'s1',kind:'step',t:'1. Admit and incorporate',tag:'Company, branch, continuation',sum:'Receive the application, check it, incorporate or register, enter in the Public Register.',
- ap:['Applications come only through the official platform; the Registrar acknowledges receipt and assigns a case number.','Check completeness first. A Deficiency Notice gives at least 20 business days to fix.','Screen beneficial owners, sanctions, reputation (fit and proper), and real presence in the Center.','A standard electronic incorporation without extra checks is decided within 1 business day of completeness.','Issue the certificate of incorporation and registered number; enter the name in the Public Register.','Incorporation alone does not allow business. A Certificate of Permitted Activities is still required.'],
- r:[['co','Art. 11–12'],['pr','Art. 13–20'],['dmp','Art. 13–18'],['ce','Art. 7(2)']],rel:['co','pr','dmp','c_priv','c_pub','c_hold','c_spv','c_rec','c_cont','p_inc','t_inc']});
-add({id:'s2',kind:'step',t:'2. Certify activities',tag:'Certificate, Permission, Exemption',sum:'Decide which activities a Resident may run and on what conditions.',
- ap:['Match each declared activity to a code in the Permitted Activities List. One principal activity, other activities as separate endorsements.','Ancillary activities need no endorsement if they are necessary, not sold separately and not a separate income source.','If a regulator\'s licence is also required, record it; the Certificate does not replace it.','Conditionally permitted activities can be issued as "not yet activated" until the licence is shown.','Certificate valid 12 to 36 months (12 by default). Propose refusal in advance and hear the applicant for 10 business days.'],
- r:[['op','Art. 9'],['ce','Art. 7–9, 13–18, Part 4'],['pa','Art. 6–8'],['dmp','Art. 17']],rel:['op','ce','pa','dmp','st_perm','st_ex','t_dec','t_cert','a_A','a_B','a_C','a_D','a_E','a_F','a_G','a_H','a_I','a_J','a_K','a_L','a_M']});
-add({id:'s3',kind:'step',t:'3. Keep the registers',tag:'Public Register and others',sum:'Maintain reliable, current registers and publish what the law allows.',
- ap:['Public Register of Participants: name, number, legal form, status, validity, permitted activities, office, email.','Separate registers of Permissions, Accreditation Permits and Exemptions; register of auditors.','Residents report any change in registered details within 30 days; the Registrar then issues an updated Certificate.','Non-public data is kept separately where law, security or AML/CFT limits disclosure.'],
- r:[['pr','Art. 21, 26'],['op','Art. 16, 20, 68'],['co','Art. 154'],['ce','Art. 19']],rel:['pr','op','co','ps','t_chg']});
-add({id:'s4',kind:'step',t:'4. Monitor and supervise',tag:'Risk-based',sum:'Check that Residents stay within their Certificate and the rules.',
- ap:['Annual Confirmation Statement filed together with Certificate renewal.','Information requests and entry to premises by written notice; privileged communications are protected.','Inspectors may be appointed; reports go to the Administration of the Center.','Priorities set by risk to the Center, registers, AML/CFT and sanctions.','Primary activity not started or stopped for 12 months: ask for an explanation and a restart plan.'],
- r:[['op','Art. 17 Confirmation Statement'],['op','Art. 23–31 inspection and information'],['pa','Art. 7(7)'],['dmp','Art. 8(1)(h)']],rel:['op','dmp','pa','p_oth','t_cert']});
-add({id:'s5',kind:'step',t:'5. Enforce',tag:'Direction to fine',sum:'Correct breaches in escalating steps. The heaviest ones belong to the Administration.',
- ap:['Registrar can: issue directions, require information, accept enforceable undertakings, vary or suspend a Certificate for a breach, apply to Court.','Administration of the Center can: censure, fine, suspend or end Participant status, restrict activity.','On measures that belong to the Administration, the Registrar compiles the case file and submits it.','Expedited decisions without prior notice are allowed only where special legislation says so, with notice within 3 business days.'],
- r:[['op','Art. 30–32 directions'],['op','Art. 37–39 undertakings, censures, fines'],['law','Art. 79 measures of liability'],['dmp','Art. 7, 22, 26']],rel:['op','law','dmp','p_fees','who_reg','who_adm','who_court']});
-add({id:'s6',kind:'step',t:'6. Exit and restore',tag:'Strike off, restoration',sum:'End a Resident\'s record properly, or bring it back through the Court.',
- ap:['Strike-off grounds: not operating, uncured material breach, unpaid penalty for 3 months, or Resident\'s own application.','Notice in the Appointed Publication and 3 months to show cause; Administration consent where the Resident holds a certification.','On strike-off the Resident is dissolved; officers stay liable; records kept for 6 years.','Restoration is ordered by the Court on application by the Registrar or interested persons.','Strike-off, dissolution, loss of status and revocation of a Certificate are separate decisions.'],
- r:[['op','Art. 33–34'],['co','Art. 151'],['dmp','Art. 27']],rel:['op','co','dmp','who_court','who_adm','t_strike']});
+/* ===== Strategic Directions (9) ===== */
+var DIRS=[['d_ai','Artificial Intelligence and Data',['A'],'Codes A. Data protection and AI rules of the Law (Art. 62, 74) apply next to the Certificate.'],
+['d_infra','Digital Infrastructure',['E','F'],'Codes E and F. Cross-border data and cybersecurity trust services carry special conditions.'],
+['d_vent','Venture and Investment',['H'],'Code H. Own-funds investing only. Funds, brokerage and advice move to category M.'],
+['d_saas','SaaS and Digital Products',['B','K'],'Codes B and K. Simple resale of third-party software does not qualify.'],
+['d_bt','Global Technology and Business Services',['D'],'Code D. Covers IT outsourcing, EOR, BPO and headquarters functions.'],
+['d_rd','Innovation and R&D',['I'],'Code I. Prototype and pilot production only; mass production needs a Production Area.'],
+['d_game','Game Development and Creative Technologies',['C'],'Code C. Gambling is excluded without a separate permission.'],
+['d_ip','IP Holding and Commercialisation',['G'],'Code G. Needs real substance and documented title; royalties alone do not create a tax entitlement.'],
+['d_edu','Education and Talent',['J'],'Code J. Licensed education starts only after the licence.']];
+DIRS.forEach(function(d){
+ N(d[0],'dir',d[1],'Strategic Direction used for navigation and public positioning.',
+ [d[3],'The direction is derived from the Operating Codes in the Certificate. It does not replace the codes and does not by itself give a tax exemption (Permitted Activities Art. 13(2),(4), 10(5)).','Registrar action: confirm that the declared business fits the codes, then certify.'],
+ [['pa','Art. 13 two-tier classifier; Art. 10 activities outside the regime']],d[2].map(function(c){return 'code_'+c}).concat(['pa','l_cert']),
+ {flag:'The act lists nine directions and thirteen codes but gives no table linking them. The code-to-direction mapping on this map is indicative.'})});
 
-/* Areas A-M */
-var AREAS=[
-['A','Artificial Intelligence, Data and Analytics','',['Data pipelines, AI/ML models, AIaaS, data labelling, digital twins'],'AI and data are standard categories. The Registrar checks the codes A.1 to A.6 and records data categories in material-change tests. Data protection and AI rules of the Law (Art. 62, 74) apply separately.',[],['law']],
-['B','SaaS and Digital Products','',['SaaS, APIs, SDKs, proprietary digital products'],'Standard. White-label or marketplace models are allowed only if the Resident owns the product or does real development, integration or support. Simple resale of third-party licences is outside B.5.',[],[]],
-['C','Game Development and Creative Tech','g',['Games, engines, publishing, esports'],'Standard, except C.6: gambling, betting, lotteries and cash-out of in-game value need a separate permission of the Competent Regulator.',[],[]],
-['D','Global Technology and Business Services','g',['Software, IT outsourcing, EOR, BPO, KPO, HQ functions'],'D.1 to D.7 are standard. D.2 (EOR, outstaffing) must follow labour and immigration rules. D.8 audit, legal, tax and financial services need a regulator\'s permission plus a separate endorsement.',['c_hold'],[]],
-['E','Digital Infrastructure, Cloud and HPC','',['Cloud, data centres, computing capacity, DevOps'],'Standard. E.5 cross-border data transfer only to the extent allowed by special legislation and Uzbek law.',[],['p_oth']],
-['F','Cybersecurity and Digital Trust','g',['SOC, pen-testing, KYC/KYB, privacy tech'],'F.1 to F.4 standard. F.5 certification, trust and cryptographic services need the Competent Regulator\'s permission where required.',[],['p_oth']],
-['G','IP Holding and Commercialisation','',['IP ownership, licensing, tech transfer, group IP'],'Standard, with substance tests: keep an IP register and chain of title, document intra-group deals. Ownership of IP does not by itself bring a tax regime. Holding through a Company or SPV is allowed within the approved purpose.',['c_hold','c_spv'],[]],
-['H','Venture Investment and Startup Ecosystem','g',['Accelerators, own-funds venture investing, SPVs'],'H.1 to H.5 standard. H.6 managing third-party funds, brokerage or advice is not an H activity: it moves to category M with the required licence.',['c_spv','st_inv'],['p_inv']],
-['I','Innovation, R&D and Advanced Tech','g',['R&D, hardware-software, robotics, smart energy'],'Standard. Industrial or mass production only in a recognised Production Area.',[],[]],
-['J','Education, Talent and EdTech','g',['EdTech, training, HR-tech, talent platforms'],'Standard. Education that the legislation licenses or accredits (J.4) starts only after that authorising document exists.',[],[]],
-['K','Digital Platforms, E-Commerce and Content','',['Platforms, marketplaces, digital media, adtech'],'Standard. General advertising for third parties is allowed only with a material technological component (K.5).',[],[]],
-['L','FinTech, RegTech and DLT','g',['Payment tech, blockchain, tokenisation, sandbox'],'L.1 software only, without accepting client money or assets. L.4 testing of financial products happens in the Regulatory Sandbox on the Competent Regulator\'s decision.',['st_sbx'],[]],
-['M','Regulated Financial and Other Special Activities','a',['Banking, payments, insurance, securities, funds, crypto'],'Needs a licence or permission from the Central Bank or another Competent Regulator. The Registrar issues the Certificate with the endorsement "not yet activated" until the licence is shown. A Certificate never replaces the licence.',['st_sbx'],['p_oth']]
-];
-AREAS.forEach(function(a){
- add({id:'a_'+a[0],kind:'area',t:a[0]+'. '+a[1],cls:a[2],sum:a[3][0]+'.',
-  ap:[a[4],'Registrar action: assign codes from the Permitted Activities List, set conditions, record the Activity Endorsement, show the endorsement on the Public Register.'],
-  r:[['pa','Art. 8, category ('+a[0]+')'],['ce','Art. 8–9']],rel:['pa','s2','ce'].concat(a[5],a[6]),area:a});
-});
+/* ===== special conditions ===== */
+N('x_perm','cond','Competent Regulator permit first','Some codes work only after another body\'s permission is shown.',
+ ['The Certificate is issued with the endorsement "not yet activated" until the licence or permission is provided.','Examples: C.6 gambling, D.8 audit, legal and tax services, F.5 certification and crypto services, H.6 funds, J.4 licensed education, all of M.','A Certificate or Permission is never a licence of a competent regulator.'],
+ [['pa','Art. 6(10), 9(1), 12(2)'],['ce','Art. 6(4), 8(6), 9(4)']],['ce','pa','code_M','code_C','code_D','code_F','code_J','code_H']);
+N('x_data','cond','Data protection and cross-border data','Personal, biometric, medical and financial data and their transfer abroad follow data rules.',
+ ['Registrar treats a change in the category of data processed as a material change that needs notice or approval.','The data protection rules themselves sit in a separate act that is not on file.'],
+ [['pa','Art. 6(13), 9(7)'],['ce','Art. 34(2)'],['law','Art. 62–63']],['p_oth','code_A','code_E','code_B'],{draft:1});
+N('x_eor','cond','Labour and immigration for EOR','Employer-of-record and outstaffing must comply with labour and immigration rules.',
+ ['Code D.2 covers formal employment of IT staff for clients, payroll, tax withholding and immigration support.','Foreign employees are registered through the Center\'s digital platform (Law Art. 38).'],
+ [['pa','D.2'],['law','Art. 34–38']],['code_D']);
+N('x_prod','cond','Prototype vs mass production','R&D may build pilots; industry belongs in a Production Area.',
+ ['Codes I.4 and I.6: prototype, test and small-batch production allowed.','Mass industrial production only in a recognised Production Area under special legislation.'],
+ [['pa','Art. 9(6), I.4, I.6']],['code_I']);
+N('x_ip','cond','IP register and chain of title','A code G Resident proves where its IP rights come from.',
+ ['Keep an up-to-date IP register: lawful creation or acquisition, chain of title, territory, term, licences, related parties.','This data goes to the non-public part of the Platform; the code and endorsement status are public.','Intra-group IP deals need documents and arm\'s-length terms.'],
+ [['pa','Art. 9(9)–(11), G.6–G.7']],['code_G','s_hold','s_spv']);
+N('x_tax','cond','Tax classification is not the Registrar\'s call','An entry in a Certificate does not decide how income is taxed.',
+ ['Tax and customs consequences follow the Tax and Customs Regulations and the Center\'s bodies.','Mere ownership of IP or receipt of royalties does not by itself attach income to the Center.'],
+ [['pa','Art. 7(10), 9(12), 10(4)–(5), 10(7)']],['p_oth','code_G','d_ip'],{draft:1});
+N('x_resale','cond','Resale of third-party software is excluded','No special regime for plain resale without added value.',
+ ['B.5: white-label, marketplace and channel models qualify only with ownership or material development, integration, localisation or support.'],
+ [['pa','Art. 9(15), 10(6)']],['code_B','d_saas']);
 
-/* Company structures */
-add({id:'c_priv',kind:'corp',cls:'',t:'Private Company',sum:'Company limited by shares, by guarantee, or unlimited. Cannot make public offers.',tagk:['co','s1','st_perm'],
- ap:['Incorporated on application with Articles of Association; Standard Articles may be adopted whole.','Registrar may refuse for any reason it considers proper; reasons duty comes from Operating Regulations Art. 66 (see Points to verify).','After incorporation the Company needs a Certificate of Permitted Activities before it starts business.','Articles amendments are filed within 14 days.'],
- r:[['co','Art. 7, 9–15, 26–27']],rel:['co','s1','s2','p_inc','v3','t_inc']});
-add({id:'c_pub',kind:'corp',cls:'',t:'Public Company',sum:'May offer shares to the public. Stricter accounts, directors\' report and name rules.',tagk:['co','s1'],
- ap:['Same incorporation path as a Private Company, with extra capital, naming and reporting rules.','Re-registration between Private and Public is a separate Registrar procedure.','Securities-market activity itself is category M and needs a licence.'],
- r:[['co','Art. 26, 28, 30–31, 37, 125']],rel:['co','s1','a_M','p_inc']});
-add({id:'c_hold',kind:'corp',cls:'g',t:'Holding Company and HQ',sum:'Holds shares, IP or interests in subsidiaries; may run international headquarters functions.',tagk:['co','a_G','a_D'],
- ap:['A prescribed type under Companies Regulations Part 11; may do ancillary intra-group finance and governance, but no regulated activity without authorisation.','Activity codes: D.7 headquarters, G.4 group IP.','Substance test: legal and operational presence proportionate to the activity; managing foreign subsidiaries does not move their income into the Center.','Keep separate accounts for activity in and outside the Center.'],
- r:[['co','Part 11'],['pa','Art. 6(9), 6(11), 6(12)']],rel:['co','pa','a_D','a_G','s2','s4']});
-add({id:'c_spv',kind:'corp',cls:'g',t:'SPV / Project structure',sum:'Not a separate legal form. A Private Company with a narrow, approved purpose.',tagk:['co','a_H','a_G'],
- ap:['Objects limited in the constitution to the approved purpose; no unrelated commercial activity.','Registered office may be through an approved corporate services provider.','Registrar may revoke SPV designation if conditions stop being met.','The 12-month inactivity explanation rule does not apply automatically if the SPV fulfils its approved purpose.'],
- r:[['co','Part 11, SPV'],['pa','Art. 7(7)']],rel:['co','a_H','a_G','s2','s4']});
-add({id:'c_rec',kind:'corp',cls:'',t:'Recognised Company',sum:'Branch or representative office of a Foreign Company.',tagk:['co','s1'],
- ap:['A Foreign Company may not carry on business in the Center unless registered as a Recognised Company.','Application sets out business nature, directors and officers, and an address in the Center.','Registrar inspects and may use the same remedies as for incorporated Residents.','Mergers involving a Foreign Company need Registrar consent (Art. 113).'],
- r:[['co','Part 12, Art. 113']],rel:['co','s1','s4','p_inc']});
-add({id:'c_cont',kind:'corp',cls:'',t:'Continued company',sum:'A foreign company that moves its incorporation into the Center, or out of it.',tagk:['co','s1'],
- ap:['Inbound: application with articles of continuation, certified home-jurisdiction documents and evidence that home law permits continuation.','Registrar issues a certificate of continuation; rights and liabilities carry over.','Outbound: Registrar authorises the transfer and may refuse (Art. 147).'],
- r:[['co','Part 13']],rel:['co','s1','s6']});
+/* ===== structures ===== */
+N('s_op','corp','Operating Companies','Private and Public Companies that run the business in the Center.',
+ ['Private Company: limited by shares, by guarantee or unlimited; no public offers. Public Company may offer shares and has stricter capital, naming and reporting rules.','Registrar incorporates on application with Articles; a standard electronic application is decided within 1 business day of completeness.','Incorporation does not allow business. A Certificate of Permitted Activities is required first (Certificates Rules Art. 7(2)).'],
+ [['co','Art. 7, 11–13, 26–31'],['dmp','Art. 16(1)']],['co','l_adm','l_cert','x_office','p_inc']);
+N('s_hold','corp','Holding Companies and HQ','Companies that hold shares, IP or interests, or run international headquarters functions.',
+ ['A prescribed type under Companies Regs Part 11; ancillary intra-group finance and governance allowed, regulated activity only with authorisation.','Substance test: legal and operational presence proportionate to the activity (Permitted Activities Art. 6(9), 9(13)).','Managing foreign subsidiaries does not move their income into the Center; keep separate accounts for activity in and outside.'],
+ [['co','Part 11'],['pa','Art. 6(9),(11),(12), 9(5), 9(13)']],['co','x_subst','x_acct','code_D','code_G']);
+N('s_spv','corp','SPV and Project Structures','Not a separate legal form. A Private Company with a narrow approved purpose.',
+ ['Objects are limited in the constitution to the approved purpose; no unrelated commercial activity.','Registered office may be through an approved corporate services provider.','The Registrar can revoke the SPV designation if the conditions stop being met; the 12-month inactivity rule does not apply automatically.'],
+ [['co','Part 11, SPV'],['pa','Art. 7(7), 9(13)']],['co','x_obj','x_csp','code_H','code_G','x_subst']);
+N('s_rec','corp','Recognised Companies','Branches and representative offices of foreign companies, plus continuation of foreign companies.',
+ ['A Foreign Company may not carry on business in the Center unless registered as a Recognised Company (Companies Regs Part 12).','A Foreign Company may instead continue as a Company in the Center (Part 13) with a certificate of continuation; leaving needs Registrar authorisation.','Mergers involving a Foreign Company need Registrar consent (Art. 113).'],
+ [['co','Part 12, Art. 113, Part 13']],['co','x_rec','x_cont','x_merge']);
+N('s_inv','corp','Investors','Institutional, start-up, resident-investor and infrastructure investors.',
+ ['Investor Certificate records status and category; it does not authorise activities.','Start-up investors need no separate registration unless a Center decision says otherwise (Law Art. 28).','Funds and management of third-party money are regulated activity (category M).'],
+ [['law','Art. 26–30'],['ce','Part 7'],['pr','Art. 9–11']],['law','ce','pr','p_inv','st_inv']);
+N('st_inv','corp','Investor categories','Four categories in the Law, each with its own route.',
+ ['Institutional investor: funds, financial institutions; full special regime.','Start-up investor: direct investment in start-ups, no separate registration by default.','Resident-investor: a Resident that also invests; no repeat corporate registration.','Infrastructure investor: infrastructure projects. Self-directed investors may use simplified registration or notice.'],
+ [['law','Art. 27–30'],['pr','Art. 10–11']],['s_inv','p_inv']);
+N('x_office','type','Registered office and email','Every Resident keeps both at all times.',
+ ['A registered office and a registered email address in the Center for all notices; documents are served there.','Principal business must be carried on in the Center unless the Registrar permits otherwise.','Change of office takes effect when the Registrar registers the notice.'],
+ [['op','Art. 13, 15']],['s_op','l_chg']);
+N('x_subst','type','Substance test','Real presence in proportion to the purpose.',
+ ['Applies to SPVs, Holding Companies and IP structures. Absence of sales or a large workforce is not itself a breach.','An address, platform or bank account in the Center does not alone make an activity a Center activity.'],
+ [['pa','Art. 6(9), 9(13)']],['s_hold','s_spv']);
+N('x_acct','type','Separate accounting in and outside the Center','Activities outside the Center are kept apart.',
+ ['Separate records of income, expenses, assets, liabilities, employees and contracts; segregation in contracts, invoices and public statements.'],
+ [['pa','Art. 6(12), 9(8)']],['s_hold']);
+N('x_obj','type','Limited objects','The SPV constitution names its purpose.',
+ ['Allowed purposes: holding assets, shares or IP; financing or structured deals; holding vehicle in a group; other purpose approved by the Registrar.','No regulated financial or professional activity unless separately authorised.'],
+ [['co','Part 11, SPV (1)–(6)']],['s_spv']);
+N('x_csp','type','Corporate services provider office','An SPV may use an approved provider as its registered office.',
+ ['Unless the Registrar decides otherwise, an approved corporate services provider or other authorised arrangement satisfies the office requirement.'],
+ [['co','Part 11, SPV (5)']],['s_spv']);
+N('x_rec','type','Registration as Recognised Company','The route for a branch or representative office.',
+ ['Application states name, place of business in the Center, nature of business, directors and officers; Registrar may inspect and use the same remedies as for Residents.'],
+ [['co','Part 12']],['s_rec']);
+N('x_cont','type','Continuation of a foreign company','Move the incorporation into the Center.',
+ ['Needs articles of continuation, certified home documents, proof that home law permits it and that home consents exist.','Registrar issues a certificate of continuation; rights and liabilities carry over.'],
+ [['co','Part 13, Art. 141–147']],['s_rec']);
+N('x_merge','type','Consent to mergers with foreign companies','Registrar consent is required.',
+ ['A merger involving a Foreign Company cannot complete without the Registrar\'s consent.'],
+ [['co','Art. 113']],['s_rec']);
+N('x_invcert','type','Investor Certificate','Evidence of investor status and category.',
+ ['Issued after the status is granted; the Registrar records it in the Register of Participants and publishes it.','It does not authorise activity: a Certificate of Permitted Activities is still needed where required.'],
+ [['ce','Part 7, Art. 6(3)'],['law','Art. 23']],['st_inv','s_inv']);
+N('x_start','type','Start-up investor: no registration','Default rule from the Law.',
+ ['Separate registration as a Participant is not required unless a Center decision provides otherwise.'],
+ [['law','Art. 28'],['op','Art. 8(3)']],['st_inv','s_inv']);
+N('x_self','type','Self-directed investor','Asks for no support or benefits.',
+ ['May use simplified registration or notification; the Administration decides when it must still be entered in a register.'],
+ [['pr','Art. 11']],['st_inv','s_inv']);
 
-/* Status holders */
-add({id:'st_inv',kind:'status',cls:'g',t:'Investors',sum:'Institutional, resident-investor, infrastructure; start-up investors usually need no registration.',
- ap:['Investor Certificate records the status and the category; it does not authorise activities.','Start-up investor: no separate registration unless a Center decision says otherwise (Law Art. 28; Operating Regulations Art. 8(3)).','Resident may also be an investor without repeating corporate registration.','Self-directed investors who ask for no benefits can use simplified registration or notice.','Funds and management of third-party money are regulated activity (category M).'],
- r:[['law','Art. 26–30'],['ce','Part 7'],['pr','Art. 9–11']],rel:['law','ce','pr','p_inv','a_H','a_M','who_adm']});
-add({id:'st_perm',kind:'status',cls:'',t:'Permission holder',sum:'A non-resident allowed to do a specific act in or from the Center.',
- ap:['Same activity rules as a Certificate, for a person who is not a Resident.','Granted for up to 36 months and may be renewed before expiry.','Holder only does what the Permission states.'],
- r:[['op','Art. 9(4)'],['ce','Part 5']],rel:['op','ce','s2']});
-add({id:'st_acc',kind:'status',cls:'a',t:'Accredited partner',sum:'Law, audit, accounting and consulting firms serving the Center.',
- ap:['Not a Participant and gets no tax, customs or other benefits (Law Art. 33).','Accreditation Permit lists the services; valid 12 months, renewable.','Law Art. 69: ancillary services are legal, audit, accounting, consulting and infrastructure support.','Auditors also need to be registered under Operating Regulations Art. 19–20.'],
- r:[['law','Art. 33, 69'],['ce','Part 6'],['pr','Art. 12'],['op','Art. 19–21']],rel:['law','ce','pr','op','s2']});
-add({id:'st_aud',kind:'status',cls:'',t:'Registered auditor',sum:'Auditors qualify and register with the Registrar.',
- ap:['Qualification, a register of auditors and a duty to disclose to the Registrar.','The Accreditation Permit applies in addition to auditor registration.'],
- r:[['op','Art. 19–22'],['ce','Art. 3(4)(c)']],rel:['op','ce','st_acc']});
-add({id:'st_ex',kind:'status',cls:'a',t:'Exempt person',sum:'Relief from holding a Certificate, never from being incorporated.',
- ap:['Registrar grants an Exemption only with the approval of the Administration of the Center.','Lasts up to 12 months; holder reports within 10 business days if it stops being eligible.','Review period is extended while the Administration decides, by up to 15 business days.'],
- r:[['op','Art. 9(5)'],['ce','Part 8']],rel:['op','ce','who_adm','s2']});
-add({id:'st_sbx',kind:'status',cls:'a',t:'Regulatory Sandbox project',sum:'Admitted projects test products under tailored rules.',
- ap:['Admission is determined by the Governing Council; Certificates Rules exclude it from the Registrar\'s procedure.','Financial testing under category L.4 follows the Competent Regulator\'s decision.','Registrar role to be confirmed once the sandbox resolution is available.'],
- r:[['law','Art. 39–43'],['ce','Art. 3(4)(b)']],rel:['law','ce','who_gc','a_L','a_M']});
+/* ===== sandbox + permit holders ===== */
+N('sbx','corp','Regulatory Sandbox','Admitted projects test products under tailored rules.',
+ ['Admission is decided by the Governing Council; the Certificates Rules exclude it from the Registrar\'s procedure.','Admission applies only to the product, clients, territory, term and volume in the decision; it gives no automatic right to launch commercially.','L.4 financial testing follows the Competent Regulator\'s decision.'],
+ [['law','Art. 39–43'],['ce','Art. 3(4)(b)'],['pa','Art. 9(3)']],['b_gc','code_L','code_M'],{flag:'Registrar role in the sandbox is not defined in the acts on file. To confirm when the sandbox resolution arrives.'});
+N('a_acc','acc','Accreditation Permit','For accredited partners serving the Center.',
+ ['Lists the services the partner may render; valid 12 months and renewable.','Law Art. 69 ancillary services: legal, audit, accounting, consulting, infrastructure support.'],
+ [['ce','Part 6'],['law','Art. 33, 69']],['x_acc','a_aud']);
+N('x_acc','acc','Not a Participant','Accredited partners get no special-regime benefits.',
+ ['Not a Participant unless it separately becomes a Resident or Investor; tax, customs and other benefits do not apply to it.'],
+ [['law','Art. 33(4)'],['pr','Art. 12']],['a_acc']);
+N('a_aud','acc','Registered auditor','Qualification and registration with the Registrar.',
+ ['Operating Regs Part 4: qualification, register of auditors, duty to disclose to the Registrar.','The Accreditation Permit applies in addition to auditor registration.'],
+ [['op','Art. 19–22'],['ce','Art. 3(4)(c)']],['a_acc']);
+N('a_perm','acc','Permission','For a non-resident that must do a specific act in or from the Center.',
+ ['Allows what a Certificate holder could do; granted up to 36 months and renewable before expiry.','Holder does only what the Permission states.'],
+ [['op','Art. 9(4)'],['ce','Part 5']],['ce']);
+N('a_ex','acc','Exemption','Relief from holding a Certificate, never from incorporation.',
+ ['The Registrar can grant it only with the Administration\'s approval; up to 12 months; holder reports within 10 business days if it stops being eligible.'],
+ [['op','Art. 9(5)'],['ce','Part 8']],['b_adm','ce']);
 
-/* Decision-makers */
-add({id:'who_reg',kind:'who',cls:'',t:'Registrar',sum:'Inside the Administration, functionally independent in specific regulatory decisions.',
- ap:['Incorporation and registration, Certificates, Permissions, Accreditation Permits, Investor Certificates.','Names, SPV designation, directions, information requests, undertakings, strike-off (with Administration consent in some cases).','Keeps the registers. Must follow the Decision-Making Procedures. Not liable for acts in good faith.'],
- r:[['op','Art. 6–7, 56'],['dmp','Art. 7']],rel:['op','dmp','s1','s2','s3','s4','s5','s6']});
-add({id:'who_adm',kind:'who',cls:'a',t:'Administration of the Center',sum:'Executive body. Owns the heavy measures and adopts Rules.',
- ap:['Applies censures, fines, suspension or termination of Participant status and loss of benefits.','Approves Exemptions and some strike-offs; adopts Rules; appoints and dismisses the Registrar after consulting the Secretary of the Governing Council.','Registrar sends it the case file; the DMP are not a delegation of its powers.'],
- r:[['op','Art. 38–39, 46–48'],['law','Art. 20, 79'],['dmp','Art. 7(4)–(7)']],rel:['op','law','dmp','st_ex','s5','s6']});
-add({id:'who_gc',kind:'who',cls:'a',t:'Governing Council',sum:'Adopts the regulations and the List of Permitted Activities.',
- ap:['Approves the Operating, Companies and Permitted Activities regulations and adds new categories or company types.','Decides admission to the Regulatory Sandbox and the Regulations on Fines.'],
- r:[['law','Art. 15–17'],['pa','Art. 8, 13']],rel:['law','pa','st_sbx','p_fees']});
-add({id:'who_court',kind:'who',cls:'',t:'Court',sum:'Reviews Registrar decisions and orders restoration, winding up and enforcement.',
- ap:['Applications to Court against a Registrar decision (Operating Regulations Art. 40).','Restoration of struck-off Residents; enforcement of directions and undertakings; winding up, receivers, compensation.','Complaints about services of the Center\'s bodies go to the Tashkent International Commercial Court (Law Art. 70).'],
- r:[['op','Art. 34, 40–45'],['law','Art. 70, 77']],rel:['op','law','s5','s6']});
+/* ===== Registrar actions (lifecycle) ===== */
+N('l_adm','act2','Admission and incorporation','Receive, check, incorporate or register, enter in the Public Register.',
+ ['Applications come through the platform; Registrar acknowledges and assigns a case number.','Completeness first. A Deficiency Notice gives at least 20 business days to fix.','Screen beneficial owners, sanctions, reputation (fit and proper), real presence.','Issue certificate of incorporation and registered number; enter the name in the Public Register.'],
+ [['co','Art. 11–12'],['pr','Art. 13–20'],['dmp','Art. 13–18']],['co','pr','dmp','s_op','s_hold','s_spv','s_rec','p_inc','reg']);
+N('l_cert','act2','Certificate of Permitted Activities','Decide which activities a Resident may run and on what conditions.',
+ ['Match each declared activity to a code. One principal activity; others as separate endorsements. Ancillary activities need none.','Record any required regulator licence; "not yet activated" until shown.','Decision within 10 business days of completeness (Certificates Rules). Before refusing, give notice and 10 business days to respond.','Valid 12 to 36 months, 12 by default.'],
+ [['op','Art. 9'],['ce','Art. 7–9, 13–18, Part 4'],['pa','Art. 6–8'],['dmp','Art. 17']],['op','ce','pa','dmp','code_A','x_perm','d_ai','d_infra','d_vent','d_saas','d_bt','d_rd','d_game','d_ip','d_edu','b_reg']);
+N('l_renew','act2','Renewal and Confirmation Statement','Keep the Certificate alive and the record true.',
+ ['Apply before expiry with the fee; file the annual Confirmation Statement at the same time.','Late renewal within 30 days of expiry: no fine. After 30 days: automatic fine under the Rules on Fees and Fines.','Primary activity not started or stopped for 12 months: Registrar may ask for an explanation and a restart plan.'],
+ [['op','Art. 9(9)–(11), 17'],['ce','Art. 23–24'],['pa','Art. 7(7)']],['op','ce','p_fees','b_reg']);
+N('l_name','act2','Names','Check, approve and, if needed, require a change of name.',
+ ['No misleading, deceptive or conflicting names; no state or international organisation names; no confusing similarity to earlier names or trade marks.','Name change notified within 30 days; Registrar issues a certificate of name change.','Registrar may direct a change; 30 days to comply.'],
+ [['op','Art. 10–12']],['op']);
+N('l_chg','act2','Changes in registered details','Keep registers current.',
+ ['Resident notifies the Registrar within 30 days of changes to registered details, constitutional documents, office, email, directors, owners, activities.','The Registrar then issues an updated Certificate.'],
+ [['op','Art. 13, 15–16'],['pr','Art. 26'],['ce','Art. 34(4)']],['op','pr','reg','x_office']);
+N('l_bo','act2','Beneficial ownership','Know who stands behind each Participant.',
+ ['Each applicant and Participant discloses beneficial owners, controllers and nominee arrangements and updates them after changes.','Failure may lead to refusal, warning, remedial notice, fine, suspension or termination.'],
+ [['op','Art. 59'],['pr','Art. 17']],['pr','op','p_oth']);
+N('l_act','act2','Activity changes','Approval for new activities, notice for material changes.',
+ ['Before a new standalone activity or code: prior Registrar approval.','Material change within a code (product, income method, clients, client money, data category, IP ownership, key functions): notify in advance.','The Registrar may require the endorsement to be amended.'],
+ [['pa','Art. 7(4)–(5), 11(1)'],['ce','Art. 34']],['pa','ce','b_reg']);
+N('l_info','act2','Information requests and inspection','Check that the stated activity is real.',
+ ['Written notice requiring information, documents or entry to premises; privileged communications protected.','Registrar may ask for explanations, updated business plan, contracts, invoices, employee and client data.','Inspectors may be appointed; reports go to the Administration. A Court order can compel production.'],
+ [['op','Art. 23–31'],['pa','Art. 11(2)'],['dmp','Art. 24']],['op','pa','b_reg']);
+N('l_dir','act2','Directions and undertakings','First-line corrective tools of the Registrar.',
+ ['Written direction to make good a failure to file or comply; if ignored, the Registrar applies to Court.','Enforceable undertakings: written, can be published, enforced by Court orders.'],
+ [['op','Art. 30, 32, 37'],['dmp','Art. 24–25']],['op','b_reg','b_court']);
+N('l_fine','act2','Warnings, censures and fines','Applied by the Administration, prepared by the Registrar.',
+ ['Law Art. 79 lists the measures: warning, order to act, removal of benefit, financial sanctions, activity restriction, suspension or termination of status.','The Registrar compiles the case file and submits it; the Administration decides.','Amounts and procedure sit in the Regulations on Fines, not yet on file.'],
+ [['op','Art. 38–39'],['law','Art. 79'],['dmp','Art. 7, 26']],['b_adm','law','p_fees','dmp']);
+N('l_susp','act2','Variation, suspension, revocation','Change or withdraw a Certificate, Permission or Exemption.',
+ ['On own initiative only if there is a breach or likely breach, or it is needed in the Center\'s interests, following the Procedures.','The holder is told in writing within 10 business days with the effective date.','Suspended: no activity, but fees, filings and other duties continue. Where it is a liability measure, the Administration decides.'],
+ [['op','Art. 9(7)–(8)'],['ce','Part 9'],['dmp','Art. 19–22']],['op','ce','dmp','b_adm','b_reg']);
+N('l_strike','act2','Strike-off','End the Resident\'s entry and dissolve it.',
+ ['Grounds: not operating, uncured material breach, penalty unpaid 3 months, or own application.','Notice in the Appointed Publication and 3 months to show cause; Administration consent where the Resident holds a certification.','Officers stay liable; records kept 6 years.'],
+ [['op','Art. 33'],['co','Art. 151'],['dmp','Art. 27']],['op','co','b_adm','reg']);
+N('l_rest','act2','Restoration','Bring a struck-off Resident back.',
+ ['Only the Court can order restoration, on application by the Registrar or an interested person, consistent with insolvency law.'],
+ [['op','Art. 34']],['op','b_court']);
 
-/* Deadlines */
-var TL=[
-['t_inc','1','business day','Standard electronic incorporation, decided after completeness','dmp','DMP Art. 16(1)'],
-['t_dec','10','business days','Certificate decision after completeness (Certificates Rules). DMP default for other applications is 15.','ce','Certificates Rules Art. 14(1); DMP Art. 16(2)'],
-['t_def','20','business days','To fix a Deficiency Notice or give requested information','ce','Certificates Rules Art. 12(2), 14(3)'],
-['t_rep','10','business days','For the applicant to answer a proposed refusal','ce','Certificates Rules Art. 15(2). DMP default is 14 days.'],
-['t_cert','12–36','months','Certificate validity (12 by default). Permission up to 36, Accreditation Permit 12, Exemption up to 12.','ce','Operating Regs Art. 9(9); Certificates Rules Art. 23, 26, 28, 33'],
-['t_chg','30','days','To report changes in registered details; renewal within 30 days of expiry is fine-free','op','Operating Regs Art. 16; Certificates Rules Art. 24'],
-['t_not','10','business days','For the Registrar to notify a revocation, suspension or variation','op','Operating Regs Art. 9(8)'],
-['t_strike','3','months','To show cause before strike-off (6 years record keeping after)','op','Operating Regs Art. 33']
-];
-TL.forEach(function(x){add({id:x[0],kind:'tl',t:x[1]+' '+x[2],sum:x[3],ap:[x[3]],r:[[x[4],x[5]]],rel:[x[4],'s2'],tl:x})});
+/* make relations symmetric */
+Object.keys(I).forEach(function(k){(I[k].rel||[]).forEach(function(r){if(I[r]&&I[r].rel.indexOf(k)<0)I[r].rel.push(k)})});
 
-/* Points to verify */
-var VER=[
-['v1','Decision deadline','Certificates Rules Art. 14(1) give 10 business days for a Certificate. DMP Art. 16(2) gives 15 business days (plus one 10-day extension) for other complete applications. DMP says it applies unless special legislation differs, so the Rules likely win. Confirm and align the text.',['ce','dmp','s2']],
-['v2','Who decides admission','Participants Regs Art. 14 and 18 say "the Administration of the Center or the Registrar". Certificates Rules Art. 13(2) say the decision is made by the Registrar. Operating Regs Art. 9(5) and 38–39 reserve some measures for the Administration. A single allocation table is needed.',['pr','ce','op','who_reg','who_adm']],
-['v3','Reasons for refusal','Companies Regs Art. 11 lets the Registrar refuse incorporation without giving reasons. Operating Regs Art. 66, DMP Art. 28 and Participants Regs Art. 18(3) require notice of reasons. Decide which prevails for incorporation.',['co','op','dmp','pr','c_priv']],
-['v4','Law date and number','The Permitted Activities draft cites Law "No. LRU-1169 dated 19 August 2026". The translation on file says adopted 4 Aug and approved by the Senate 8 Aug 2026, and carries no number. Confirm the citation.',['pa','law']],
-['v5','Law names no Registrar','The Law of the IDTC does not mention the Registrar. The office and its functional independence rest on Operating Regs Art. 6 and DMP Art. 7. Check this against the Law\'s delegation to Center resolutions (Art. 11–12, 68).',['law','op','dmp']],
-['v6','Draft status','Permitted Activities, Participants Regs and Certificates Rules are drafts; Public Services Regs are temporary (review six months after start). Fees and Fines and Incorporation Rules are not yet on file.',['pa','pr','ce','ps','p_fees','p_inc']]
-];
-VER.forEach(function(x){add({id:x[0],kind:'ver',t:x[1],sum:'Points to verify',ap:[x[2]],r:[],rel:x[3],flag:x[2]})});
-
-/* ---------- RENDER ---------- */
-function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+/* ===== render ===== */
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
-function chip(id,label){var it=I[id];var c=el('button','chip '+(it.cls||'')+(it.draft?' draft':''),esc(label||it.t));c.type='button';c.dataset.id=id;return c}
+function chip(id,label,cls){var it=I[id];var c=el('button','chip '+(cls||'F')+(it.draft?' dr':'')+(it.flag&&cls==='A'&&id==='sbx'?' dr':''),esc(label));c.type='button';c.dataset.id=id;return c}
+function put(host,list){var h=document.getElementById(host);list.forEach(function(x){h.appendChild(chip(x[0],x[1],x[2]))})}
 
-var fa=document.getElementById('f-acts');
-['law','op','co','ct','pa','pr','ce','dmp','ps'].forEach(function(id){fa.appendChild(chip(id))});
-var fp=document.getElementById('f-pend');
-['p_fees','p_inc','p_inv','p_oth'].forEach(function(id){fp.appendChild(chip(id))});
+put('f-acts',[['law','Law of the IDTC'],['op','Operating'],['co','Companies'],['pa','Permitted Activities'],['pr','Participants'],['ce','Certificates, Permissions, Exemptions'],['dmp','Decision-Making'],['ps','Public Services'],['reg','Public Register']]);
+put('f-pend',[['p_fees','Fees and Fines'],['p_inc','Incorporation Rules'],['p_inv','Investment'],['p_oth','Tax & Customs, Data Protection, AML/CFT']]);
+put('f-bod',[['b_reg','Registrar'],['b_adm','Administration'],['b_gc','Governing Council'],['b_court','Court']]);
 
-var pipe=document.getElementById('pipe');
-['s1','s2','s3','s4','s5','s6'].forEach(function(id){var s=I[id];var b=el('button','step',''+'<b>'+esc(s.t)+'</b><span>'+esc(s.sum)+'</span><i>'+esc(s.tag)+'</i>');b.type='button';b.dataset.id=id;pipe.appendChild(b)});
-
-function card(id,codeText,tagIds,sub){
- var it=I[id];var c=el('div','card '+(it.cls==='g'?'green':it.cls==='a'?'amber':'blue'));c.dataset.card=id;
- var h=el('button','chead','<span class="code">'+esc(codeText)+'</span><span><b>'+esc(sub?it.t.replace(/^[A-Z]\.\s/,''):it.t)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'<small>'+esc(it.sum)+'</small>')+'</span>');
- h.type='button';h.dataset.id=id;c.appendChild(h);
- if(tagIds&&tagIds.length){var w=el('div','chips');tagIds.forEach(function(t){w.appendChild(chip(t,short(t)))});c.appendChild(w)}
+var ICONS={
+ai:'<path d="M9 4a3 3 0 0 0-3 3v1a3 3 0 0 0-2 3 3 3 0 0 0 2 3v1a3 3 0 0 0 6 0V7a3 3 0 0 0-3-3zM15 4a3 3 0 0 1 3 3v1a3 3 0 0 1 2 3 3 3 0 0 1-2 3v1a3 3 0 0 1-6 0"/>',
+infra:'<path d="M7 18h10a4 4 0 0 0 .6-8A6 6 0 0 0 6 9a4.5 4.5 0 0 0 1 9z"/>',
+vent:'<path d="M4 19V9m5 10V5m5 14v-8m5 8V7"/>',
+saas:'<rect x="4" y="5" width="16" height="11" rx="2"/><path d="M8 20h8M12 16v4"/>',
+bt:'<circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16"/>',
+rd:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/>',
+game:'<rect x="3" y="8" width="18" height="9" rx="4"/><path d="M8 11v3M6.5 12.5h3M16 11.5h.01M18 13.5h.01"/>',
+ip:'<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.500-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/>',
+edu:'<path d="M3 9l9-4 9 4-9 4z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>',
+op:'<rect x="5" y="4" width="10" height="16"/><path d="M15 9h4v11h-4M8 8h4M8 12h4M8 16h4"/>',
+hold:'<rect x="9" y="3" width="6" height="5"/><path d="M12 8v4M6 12h12M6 12v3M18 12v3M12 12v3"/><rect x="4" y="15" width="4" height="4"/><rect x="10" y="15" width="4" height="4"/><rect x="16" y="15" width="4" height="4"/>',
+spv:'<path d="M4 18l5-6 4 3 7-9"/><path d="M4 21h16"/>',
+rec:'<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>',
+inv:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.700 3 3 7 3s7-1.300 7-3V6M5 12v6c0 1.700 3 3 7 3s7-1.300 7-3v-6"/>'};
+function ico(k){return '<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICONS[k]+'</svg></span>'}
+function card(id,icon,cls,title,chips){
+ var c=el('div','card '+cls);c.dataset.id=id;
+ var h=el('button','ch',ico(icon)+'<b>'+esc(title)+'</b>');h.type='button';h.dataset.id=id;c.appendChild(h);
+ var w=el('div','chips');chips.forEach(function(x){w.appendChild(chip(x[0],x[1],x[2]))});c.appendChild(w);
+ if(!I[id].rel)I[id].rel=[];chips.forEach(function(x){if(I[id].rel.indexOf(x[0])<0)I[id].rel.push(x[0]);if(I[x[0]].rel.indexOf(id)<0)I[x[0]].rel.push(id)});
  return c}
-function short(id){var m={law:'Law of the IDTC',op:'Operating',co:'Companies',pa:'Permitted Activities',pr:'Participants',ce:'Certificates',dmp:'Decision-Making',ps:'Public Services',p_inv:'Investment',p_oth:'Other special acts',c_hold:'Holding / HQ',c_spv:'SPV',st_inv:'Investors',st_sbx:'Sandbox',s1:'Incorporation',s2:'Certification',a_G:'IP holding',a_D:'HQ (D.7)',a_H:'Venture (H)',a_M:'Regulated (M)',st_perm:'Permission'};return m[id]||I[id].t}
+var A=document.getElementById('areas');
+[['d_ai','ai','G','Artificial Intelligence & Data',[['code_A','Code A','A'],['x_data','Data protection','R'],['x_sbx_ai','Sandbox (AI)','A']]],
+ ['d_infra','infra','G','Digital Infrastructure',[['code_E','Code E','A'],['code_F','Code F','A'],['x_data','Cross-border data','R'],['x_perm','F.5 permit','R']]],
+ ['d_vent','vent','G','Venture & Investment',[['code_H','Code H','A'],['s_inv','Investors','R'],['s_spv','SPV','R'],['x_perm','H.6 to category M','R']]],
+ ['d_saas','saas','G','SaaS & Digital Products',[['code_B','Code B','A'],['code_K','Code K','A'],['x_resale','Resale excluded','R'],['x_data','Data protection','R']]],
+ ['d_bt','bt','G','Big Tech & Global Business Services',[['code_D','Code D','A'],['x_eor','EOR: labour, immigration','R'],['s_hold','HQ (D.7)','R'],['x_perm','D.8 permit','R']]],
+ ['d_rd','rd','G','Innovation & R&D',[['code_I','Code I','A'],['x_prod','Production Area','R'],['sbx','Sandbox','A']]],
+ ['d_game','game','G','Game Development & Creative Tech',[['code_C','Code C','A'],['x_perm','C.6 gambling excluded','R']]],
+ ['d_ip','ip','G','IP Holding & Commercialisation',[['code_G','Code G','A'],['x_ip','IP register, title','R'],['s_hold','Holding / SPV','R'],['x_tax','Tax classification','R']]],
+ ['d_edu','edu','G','Education & Talent',[['code_J','Code J','A'],['x_perm','J.4 licensed education','R']]]
+].forEach(function(x){
+ if(x[4].some(function(c){return c[0]==='x_sbx_ai'})){N('x_sbx_ai','cond','Sandbox (AI)','AI projects can be tested in the Regulatory Sandbox.',['Admission is decided by the Governing Council. Law Art. 74 and 75 set the AI regime of the Center.','Registrar role is to be confirmed.'],[['law','Art. 39–43, 74–75']],['sbx'],{draft:1});I['sbx'].rel.push('x_sbx_ai')}
+ A.appendChild(card(x[0],x[1],'G',x[3],x[4].map(function(c){return c}).map(function(c){return [c[0],c[1],c[2]]})))});
+// area cards are activity-based (green); fix border colour
+document.querySelectorAll('#areas .card').forEach(function(c){c.className='card G'});
 
-var areas=document.getElementById('areas');
-AREAS.forEach(function(a){
- var id='a_'+a[0];var c=card(id,a[0],[],a[3][0]);
- var tags=['pa'].concat(a[5],a[6]);var w=el('div','chips');
- tags.forEach(function(t){w.appendChild(chip(t,short(t)))});c.appendChild(w);
- areas.appendChild(c)});
+var S=document.getElementById('struct');
+[['s_op','op','Operating Companies',[['co','Companies','F'],['l_cert','Certificate first','F'],['x_office','Office, email','F']]],
+ ['s_hold','hold','Holding Companies & HQ',[['x_subst','Substance','R'],['x_acct','Separate accounts','R'],['code_D','HQ: D.7','A']]],
+ ['s_spv','spv','SPV / Project Structures',[['x_obj','Limited objects','A'],['x_csp','Provider office','R'],['code_H','H.5','A']]],
+ ['s_rec','rec','Recognised Companies',[['x_rec','Branch','A'],['x_cont','Continuation','R'],['x_merge','Merger consent','R']]],
+ ['s_inv','inv','Investors',[['x_invcert','Investor Certificate','F'],['x_start','Start-up','R'],['x_self','Self-directed','R']]]
+].forEach(function(x){S.appendChild(card(x[0],x[1],'',x[2],x[3]));});
+document.querySelectorAll('#struct .card').forEach(function(c){c.className='card'});
 
-var corp=document.getElementById('corp');
-[['c_priv','P'],['c_pub','U'],['c_hold','H'],['c_spv','S'],['c_rec','R'],['c_cont','C']].forEach(function(x){corp.appendChild(card(x[0],x[1],I[x[0]].tagk))});
+put('sbx-c',[['sbx','Admission: Governing Council','A'],['code_L','Code L (L.4 testing)','A'],['code_M','Code M regulated, licence first','R'],['x_perm','Competent Regulator permit','R']]);
+put('acc-c',[['a_acc','Accreditation Permit','A'],['a_aud','Registered auditor','A'],['a_perm','Permission','R'],['a_ex','Exemption','R'],['x_acc','Not a Participant','F']]);
+put('life-c',[['l_adm','Admission','F'],['l_cert','Certificate','F'],['l_renew','Renewal + Confirmation','F'],['l_name','Names','R'],['l_chg','Changes in details','F'],['l_bo','Beneficial ownership','F'],['l_act','Activity change','R'],['l_info','Information, inspection','R'],['l_dir','Directions, undertakings','R'],['l_fine','Censures, fines','R'],['l_susp','Suspension, revocation','R'],['l_strike','Strike-off','R'],['l_rest','Restoration','R']]);
+document.querySelectorAll('#sbx-c .chip').forEach(function(c){if(c.dataset.id==='sbx')c.classList.add('dr')});
+['x_data','x_tax'].forEach(function(id){document.querySelectorAll('[data-id="'+id+'"].chip').forEach(function(c){c.classList.add('dr')})});
 
-var st=document.getElementById('status');
-[['st_inv','I'],['st_perm','P'],['st_acc','A'],['st_aud','R'],['st_ex','E'],['st_sbx','S']].forEach(function(x){st.appendChild(card(x[0],x[1],[]))});
-
-var who=document.getElementById('who');
-[['who_reg','R'],['who_adm','A'],['who_gc','G'],['who_court','C']].forEach(function(x){who.appendChild(card(x[0],x[1],[]))});
-
-var tl=document.getElementById('tl');
-TL.forEach(function(x){var b=el('button','tlc','<strong>'+esc(x[1])+'<small>'+esc(x[2])+'</small></strong><span>'+esc(x[3])+'</span>');b.type='button';b.dataset.id=x[0];tl.appendChild(b)});
-
-var vl=document.getElementById('vlist');
-VER.forEach(function(x,i){var b=el('button','',' <b>'+(i+1)+'</b><span><strong>'+esc(x[1])+'.</strong> '+esc(x[2].split('. ')[0])+'.</span>');b.type='button';b.dataset.id=x[0];vl.appendChild(b)});
-
-/* ---------- INTERACTION ---------- */
-var body=document.body,drawer=document.getElementById('drawer'),veil=document.getElementById('veil'),cur=null;
-function nodesFor(id){return Array.prototype.slice.call(document.querySelectorAll('[data-id="'+id+'"]'))}
-function clearMarks(){document.querySelectorAll('.sel,.rel').forEach(function(n){n.classList.remove('sel','rel')})}
+/* ===== interaction ===== */
+var stage=document.getElementById('stage'),info=document.getElementById('info'),cur=null;
+function nodes(id){return Array.prototype.slice.call(stage.querySelectorAll('[data-id="'+id+'"]'))}
+function clearMarks(){stage.querySelectorAll('.sel,.rel').forEach(function(n){n.classList.remove('sel','rel')})}
 function mark(id){
- clearMarks();var it=I[id];if(!it)return;
- body.classList.add('has-sel');
- nodesFor(id).forEach(function(n){n.classList.add('sel');var c=n.closest('.card');if(c)c.classList.add('sel')});
- (it.rel||[]).forEach(function(r){nodesFor(r).forEach(function(n){n.classList.add('rel');var c=n.closest('.card');if(c)c.classList.add('rel')})});
- // a card is related if one of its chips is related
- document.querySelectorAll('.card').forEach(function(c){if(c.querySelector('.chip.rel,.chip.sel')&&!c.classList.contains('sel'))c.classList.add('rel')});
+ clearMarks();var it=I[id];document.body.classList.add('has-sel');
+ nodes(id).forEach(function(n){n.classList.add('sel')});
+ it.rel.forEach(function(r){nodes(r).forEach(function(n){n.classList.add('rel')})});
+ stage.querySelectorAll('.card').forEach(function(c){if(!c.classList.contains('sel')&&c.querySelector('.chip.rel,.chip.sel'))c.classList.add('rel')});
 }
 function open(id,push){
  var it=I[id];if(!it)return;cur=id;mark(id);
- document.getElementById('d-kind').textContent=K[it.kind]+(it.draft?' (draft)':'');
- document.getElementById('d-title').textContent=it.t;
- document.getElementById('d-sum').textContent=it.sum;
- var b=document.getElementById('d-body');b.innerHTML='';
- if(it.flag){b.appendChild(el('div','flag','<b>Check:</b> '+esc(it.flag)))}
- if(it.ap&&!it.flag){var s=el('div','','<h3>Registrar\'s approach</h3>');var ul=el('ul');it.ap.forEach(function(a){ul.appendChild(el('li','',esc(a)))});s.appendChild(ul);b.appendChild(s)}
- if(it.r&&it.r.length){var s2=el('div','rules','<h3>Where it is written</h3>');var u2=el('ul');it.r.forEach(function(r){var li=el('li');var bt=el('button','',esc(A[r[0]]||r[0]));bt.type='button';bt.onclick=function(){open(r[0],true)};if(!I[r[0]])bt.disabled=true;li.appendChild(bt);li.appendChild(document.createTextNode(r[1]));u2.appendChild(li)});s2.appendChild(u2);b.appendChild(s2)}
- var rels=(it.rel||[]).filter(function(r){return I[r]&&r!==id});
- if(rels.length){var s3=el('div','','<h3>Connected</h3>');var w=el('div','chips');rels.forEach(function(r){var c=chip(r,short(r));c.onclick=function(e){e.stopPropagation();open(r,true)};w.appendChild(c)});s3.appendChild(w);b.appendChild(s3)}
- drawer.classList.add('on');veil.classList.add('on');drawer.setAttribute('aria-hidden','false');b.scrollTop=0;
+ // panel goes to the side opposite the clicked element
+ var src=nodes(id).filter(function(n){return n.classList.contains('chip')||n.classList.contains('ch')})[0]||nodes(id)[0];
+ var scale=currentScale();var sr=stage.getBoundingClientRect();
+ if(src){var r=src.getBoundingClientRect();var cx=(r.left+r.width/2-sr.left)/scale;info.className='on '+(cx>600?'left':'right')}else info.className='on right';
+ document.getElementById('i-k').textContent=K[it.kind]+(it.draft?' (draft)':'');
+ document.getElementById('i-t').textContent=it.t;document.getElementById('i-s').textContent=it.sum;
+ var b=document.getElementById('i-b');b.innerHTML='';
+ if(it.flag)b.appendChild(el('div','flag','<b>To confirm:</b> '+esc(it.flag)));
+ if(it.ap.length){var s=el('div','','<h3>Registrar\'s approach</h3>');var u=el('ul');it.ap.forEach(function(a){u.appendChild(el('li','',esc(a)))});s.appendChild(u);b.appendChild(s)}
+ if(it.r.length){var s2=el('div','basis','<h3>Where it is written</h3>');var u2=el('ul');it.r.forEach(function(r){var li=el('li');var bt=el('button','',esc(SHORT[r[0]]||r[0]));bt.type='button';bt.onclick=function(){open(r[0],true)};li.appendChild(bt);li.appendChild(document.createTextNode(r[1]));u2.appendChild(li)});s2.appendChild(u2);b.appendChild(s2)}
+ var rels=it.rel.filter(function(r){return I[r]&&r!==id});
+ if(rels.length){var s3=el('div','','<h3>Connected on the map</h3>');var w=el('div','chips');rels.slice(0,14).forEach(function(r){var lab=(I[r].t.length>34?I[r].t.slice(0,32)+'…':I[r].t);var c=el('button','chip '+(I[r].kind==='code'?'A':I[r].kind==='act'||I[r].kind==='body'?'F':'R'),esc(lab));c.type='button';c.onclick=function(){open(r,true)};w.appendChild(c)});s3.appendChild(w);b.appendChild(s3)}
+ b.scrollTop=0;
  if(push){try{history.replaceState(null,'','#'+id)}catch(e){}}
 }
-function closeD(){drawer.classList.remove('on');veil.classList.remove('on');drawer.setAttribute('aria-hidden','true')}
-function reset(){closeD();clearMarks();body.classList.remove('has-sel');cur=null;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
-document.getElementById('app').addEventListener('click',function(e){
- var t=e.target.closest('[data-id]');if(t){open(t.dataset.id,true);return}
- var c=e.target.closest('.card');if(c&&c.dataset.card){open(c.dataset.card,true)}
+function reset(){info.className='';clearMarks();document.body.classList.remove('has-sel');cur=null;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+stage.addEventListener('click',function(e){
+ if(e.target.closest('#info'))return;
+ var t=e.target.closest('[data-id]');
+ if(t&&t.closest('.top'))return;
+ if(t){open(t.dataset.id,true);return}
+ if(cur)reset();
 });
-document.getElementById('close').onclick=closeD;veil.onclick=closeD;
-document.getElementById('clear').onclick=reset;
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeD()});
-document.getElementById('theme').onclick=function(){var r=document.documentElement;var d=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);r.setAttribute('data-theme',d?'light':'dark')};
+document.getElementById('xb').onclick=reset;document.getElementById('clear').onclick=function(e){e.stopPropagation();reset()};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')reset()});
+document.getElementById('theme').onclick=function(e){e.stopPropagation();var r=document.documentElement;var d=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);r.setAttribute('data-theme',d?'light':'dark')};
+
+/* ===== fit 4:3 stage to window ===== */
+var W=1200,H=900;
+function currentScale(){return Math.min(innerWidth/W,innerHeight/H)}
+function fit(){var s=currentScale();stage.style.transform='scale('+s+')'}
+addEventListener('resize',fit);fit();
 function fromHash(){var h=(location.hash||'').slice(1);if(h&&I[h])open(h,false)}
-window.addEventListener('hashchange',fromHash);fromHash();
+addEventListener('hashchange',fromHash);fromHash();
 </script>
