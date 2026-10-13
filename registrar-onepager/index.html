@@ -47,8 +47,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tb:hover{border-color:var(--blue)}
 
 /* chips */
-.chips{display:flex;flex-wrap:wrap;gap:5px 6px;align-content:flex-start}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--chip);border-radius:9px;padding:3px 9px;font-size:12px;font-weight:500;text-align:left;line-height:1.2;transition:background .12s,border-color .12s,opacity .12s}
+.chips{display:flex;flex-wrap:wrap;gap:4px 5px;align-content:flex-start}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--chip);border-radius:9px;padding:2px 8px;font-size:11.5px;font-weight:500;text-align:left;line-height:1.2;transition:background .12s,border-color .12s,opacity .12s}
 .chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);flex:none}
 .chip.A::before{background:var(--green)} .chip.R::before{background:var(--amber)}
 .chip.dr{border-style:dashed}
@@ -56,7 +56,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .chip.bd{background:transparent;font-weight:600}
 
 /* cards */
-.card{border:1.5px solid var(--blue);border-radius:12px;padding:7px 9px 9px;display:grid;gap:6px;align-content:start;min-width:0;background:var(--panel);transition:opacity .12s,background .12s}
+.card{border:1.5px solid var(--blue);border-radius:12px;padding:6px 8px 7px;display:grid;gap:5px;align-content:start;min-width:0;background:var(--panel);transition:opacity .12s,background .12s}
 .card.G{border-color:var(--green)} .card.O{border-color:var(--amber)}
 .ch{display:flex;gap:8px;align-items:center;border:0;background:none;padding:0;text-align:left;width:100%}
 .ico{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
@@ -66,11 +66,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .ch:hover b{color:var(--blue)}
 
 /* grid areas */
-.mid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:8px;min-height:0}
+.mid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px;min-height:0}
 .areas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:7px;margin-top:6px;min-height:0}
 .struct{display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px;min-height:0}
 .panel.fill{display:flex;flex-direction:column;min-height:0}
-.two{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:8px}
+.two{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px}
 .band{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center}
 .band .chips{align-items:center}
 .found{display:grid;grid-template-columns:1fr auto;gap:6px 16px}
@@ -221,20 +221,19 @@ N('b_court','body','Court','Reviews Registrar decisions; orders restoration, win
 var CODES={
 A:['Artificial Intelligence, Data and Analytics','Data pipelines, AI/ML models, AI-as-a-service, data labelling, digital twins.','Standard. Registrar records the code and flags the data categories handled in later material-change checks.'],
 B:['SaaS and Digital Products','SaaS, APIs, SDKs, proprietary digital products.','Standard. White-label and marketplace models count only if the Resident owns the product or does real development, integration or support.'],
-C:['Game Development and Creative Technologies','Games, engines, publishing, esports technology.','C.1 to C.5 standard. Gambling, betting, lotteries and cash-out of in-game value need a separate Competent Regulator permission (C.6).'],
-D:['Global Technology and Business Services','Custom software, IT outsourcing, EOR, BPO and KPO, shared services, headquarters.','D.1 to D.7 standard. D.8 audit, legal, tax and financial services need a regulator permission plus a separate endorsement.'],
-E:['Digital Infrastructure, Cloud and HPC','Cloud, data centres, computing capacity, DevOps and SRE.','Standard. E.5 cross-border data only as far as special legislation and Uzbek law allow.'],
-F:['Cybersecurity and Digital Trust','SOC, penetration testing, KYC/KYB tech, privacy tech.','F.1 to F.4 standard. F.5 certification, trust and cryptographic services need the Competent Regulator\'s permission where required.'],
+C:['Game Development and Creative Technologies','Games, engines, publishing, esports technology.','Standard activity. Gambling, betting, lotteries and cash-out of in-game value need a separate permission of the competent regulator.'],
+D:['Global Technology and Business Services','Custom software, IT outsourcing, EOR, BPO and KPO, shared services, headquarters.','Standard activity. Audit, legal, tax and financial services need a regulator\'s permission plus a separate endorsement.'],
+E:['Digital Infrastructure, Cloud and HPC','Cloud, data centres, computing capacity, DevOps and SRE.','Standard activity. Cross-border data transfer only as far as special legislation and Uzbek law allow.'],
+F:['Cybersecurity and Digital Trust','SOC, penetration testing, KYC/KYB tech, privacy tech.','Standard activity. Certification, trust and cryptographic services need the competent regulator\'s permission where required.'],
 G:['IP Holding and Commercialisation','IP ownership, licensing, technology transfer, group IP management.','Standard with substance tests: IP register, chain of title, documented intra-group deals. Owning IP does not by itself bring a tax regime.'],
-H:['Venture Investment and Startup Ecosystem','Accelerators, own-funds venture investing, SPVs for holdings.','H.1 to H.5 standard. H.6 managing third-party funds, brokerage or advice is category M and needs a licence.'],
-I:['Innovation, R&D and Advanced Technologies','R&D, hardware-software, robotics, IoT, smart energy.','Standard. Pilot production for prototypes is fine; industrial or mass production only in a recognised Production Area.'],
-J:['Education, Talent and EdTech','EdTech platforms, training, HR-tech, talent platforms.','Standard. Education that legislation licenses or accredits (J.4) starts only after that document exists.'],
-K:['Digital Platforms, E-Commerce and Content','Platforms, marketplaces, digital media, adtech.','Standard. General advertising for third parties counts only with a material technological component (K.5).'],
-L:['FinTech, RegTech and DLT','Payment tech, blockchain, tokenisation, financial products in the sandbox.','L.1 is software only, without accepting client money or assets. L.4 testing happens in the Regulatory Sandbox on the Competent Regulator\'s decision.'],
+H:['Venture Investment and Startup Ecosystem','Accelerators, own-funds venture investing, SPVs for holdings.','Own-funds investing and startup programmes are standard. Managing third-party funds, brokerage or advice is regulated finance and needs a licence.'],
+I:['Innovation, R&D and Advanced Technologies','R&D, hardware-software, robotics, IoT, smart energy.','Standard activity. Pilot production for prototypes is fine; industrial or mass production only in a recognised Production Area.'],
+J:['Education, Talent and EdTech','EdTech platforms, training, HR-tech, talent platforms.','Standard activity. Education that legislation licenses or accredits starts only after that document exists.'],
+K:['Digital Platforms, E-Commerce and Content','Platforms, marketplaces, digital media, adtech.','Standard activity. General advertising for third parties counts only with a material technological component.'],
+L:['FinTech, RegTech and DLT','Payment tech, blockchain, tokenisation, financial products in the sandbox.','Software only, without accepting client money or assets. Testing financial products happens in the Regulatory Sandbox on the competent regulator\'s decision.'],
 M:['Regulated Financial and Other Special Activities','Banking, payments, insurance, securities, funds, virtual assets.','Conditionally permitted. The Certificate is issued or activated only after the Competent Regulator confirms. A Certificate never replaces the licence.']};
-Object.keys(CODES).forEach(function(k){var c=CODES[k];
- N('code_'+k,'code','Code '+k+'. '+c[0],c[1],[c[2],'Registrar action: assign the code as principal or additional activity, set conditions, record the Activity Endorsement, publish code and status in the Public Register.'],
- [['pa','Art. 8 category '+k+'; Art. 13 classifier'],['ce','Art. 8–9 endorsements']],['pa','l_cert'])});
+['L','M'].forEach(function(k){var c=CODES[k];
+ N('fin_'+k,'cond',c[0],c[1],[c[2],'Registrar action: record the activity as an endorsement only within what the regulator allows, show its status in the Public Register.'],[['pa','Art. 8 category '+k+'; Art. 9(1); Art. 12(2)'],['ce','Art. 8(6), 9(4)']],['pa','l_cert','sbx','x_perm'])});
 
 /* ===== Strategic Directions (9) ===== */
 var DIRS=[['d_ai','Artificial Intelligence and Data',['A'],'Codes A. Data protection and AI rules of the Law (Art. 62, 74) apply next to the Certificate.'],
@@ -247,32 +246,33 @@ var DIRS=[['d_ai','Artificial Intelligence and Data',['A'],'Codes A. Data protec
 ['d_ip','IP Holding and Commercialisation',['G'],'Code G. Needs real substance and documented title; royalties alone do not create a tax entitlement.'],
 ['d_edu','Education and Talent',['J'],'Code J. Licensed education starts only after the licence.']];
 DIRS.forEach(function(d){
- N(d[0],'dir',d[1],'Strategic Direction used for navigation and public positioning.',
- [d[3],'The direction is derived from the Operating Codes in the Certificate. It does not replace the codes and does not by itself give a tax exemption (Permitted Activities Art. 13(2),(4), 10(5)).','Registrar action: confirm that the declared business fits the codes, then certify.'],
- [['pa','Art. 13 two-tier classifier; Art. 10 activities outside the regime']],d[2].map(function(c){return 'code_'+c}).concat(['pa','l_cert']),
- {flag:'The act lists nine directions and thirteen codes but gives no table linking them. The code-to-direction mapping on this map is indicative.'})});
+ var ap=[];d[2].forEach(function(c){ap.push('Covers: '+CODES[c][1]);ap.push(CODES[c][2])});
+ ap.push('Registrar action: confirm that the declared business fits this direction, certify it, record the activity in the Certificate and show it in the Public Register.');
+ N(d[0],'dir',d[1],'Strategic Direction used for navigation and public positioning.',ap,
+ [['pa','Art. 8 categories '+d[2].join(', ')+'; Art. 13 classifier; Art. 10 activities outside the regime']],['pa','l_cert'],
+ {flag:'The act lists nine directions and thirteen activity categories but gives no table linking them. The grouping on this map is indicative.'})});
 
 /* ===== special conditions ===== */
 N('x_perm','cond','Competent Regulator permit first','Some codes work only after another body\'s permission is shown.',
- ['The Certificate is issued with the endorsement "not yet activated" until the licence or permission is provided.','Examples: C.6 gambling, D.8 audit, legal and tax services, F.5 certification and crypto services, H.6 funds, J.4 licensed education, all of M.','A Certificate or Permission is never a licence of a competent regulator.'],
+ ['The Certificate is issued with the endorsement "not yet activated" until the licence or permission is provided.','Examples: gambling, audit, legal and tax services, certification and crypto services, fund management, licensed education, all regulated finance.','A Certificate or Permission is never a licence of a competent regulator.'],
  [['pa','Art. 6(10), 9(1), 12(2)'],['ce','Art. 6(4), 8(6), 9(4)']],['ce','pa','code_M','code_C','code_D','code_F','code_J','code_H']);
 N('x_data','cond','Data protection and cross-border data','Personal, biometric, medical and financial data and their transfer abroad follow data rules.',
  ['Registrar treats a change in the category of data processed as a material change that needs notice or approval.','The data protection rules themselves sit in a separate act that is not on file.'],
  [['pa','Art. 6(13), 9(7)'],['ce','Art. 34(2)'],['law','Art. 62–63']],['p_oth','code_A','code_E','code_B'],{draft:1});
 N('x_eor','cond','Labour and immigration for EOR','Employer-of-record and outstaffing must comply with labour and immigration rules.',
- ['Code D.2 covers formal employment of IT staff for clients, payroll, tax withholding and immigration support.','Foreign employees are registered through the Center\'s digital platform (Law Art. 38).'],
- [['pa','D.2'],['law','Art. 34–38']],['code_D']);
+ ['The EOR service covers formal employment of IT staff for clients, payroll, tax withholding and immigration support.','Foreign employees are registered through the Center\'s digital platform (Law Art. 38).'],
+ [['pa','Art. 8 category D (EOR)'],['law','Art. 34–38']],['code_D']);
 N('x_prod','cond','Prototype vs mass production','R&D may build pilots; industry belongs in a Production Area.',
- ['Codes I.4 and I.6: prototype, test and small-batch production allowed.','Mass industrial production only in a recognised Production Area under special legislation.'],
- [['pa','Art. 9(6), I.4, I.6']],['code_I']);
+ ['Prototype, test and small-batch production are allowed.','Mass industrial production only in a recognised Production Area under special legislation.'],
+ [['pa','Art. 9(6); Art. 8 category I']],['code_I']);
 N('x_ip','cond','IP register and chain of title','A code G Resident proves where its IP rights come from.',
  ['Keep an up-to-date IP register: lawful creation or acquisition, chain of title, territory, term, licences, related parties.','This data goes to the non-public part of the Platform; the code and endorsement status are public.','Intra-group IP deals need documents and arm\'s-length terms.'],
- [['pa','Art. 9(9)–(11), G.6–G.7']],['code_G','s_hold','s_spv']);
+ [['pa','Art. 9(9)–(11); Art. 8 category G']],['code_G','s_hold','s_spv']);
 N('x_tax','cond','Tax classification is not the Registrar\'s call','An entry in a Certificate does not decide how income is taxed.',
  ['Tax and customs consequences follow the Tax and Customs Regulations and the Center\'s bodies.','Mere ownership of IP or receipt of royalties does not by itself attach income to the Center.'],
  [['pa','Art. 7(10), 9(12), 10(4)–(5), 10(7)']],['p_oth','code_G','d_ip'],{draft:1});
 N('x_resale','cond','Resale of third-party software is excluded','No special regime for plain resale without added value.',
- ['B.5: white-label, marketplace and channel models qualify only with ownership or material development, integration, localisation or support.'],
+ ['White-label, marketplace and channel models qualify only with ownership or material development, integration, localisation or support.'],
  [['pa','Art. 9(15), 10(6)']],['code_B','d_saas']);
 
 /* ===== structures ===== */
@@ -389,6 +389,9 @@ N('l_rest','act2','Restoration','Bring a struck-off Resident back.',
  ['Only the Court can order restoration, on application by the Registrar or an interested person, consistent with insolvency law.'],
  [['op','Art. 34']],['op','b_court']);
 
+/* old code ids -> directions */
+var CM={code_A:'d_ai',code_B:'d_saas',code_K:'d_saas',code_C:'d_game',code_D:'d_bt',code_E:'d_infra',code_F:'d_infra',code_G:'d_ip',code_H:'d_vent',code_I:'d_rd',code_J:'d_edu',code_L:'fin_L',code_M:'fin_M'};
+Object.keys(I).forEach(function(k){var seen={};I[k].rel=I[k].rel.map(function(r){return CM[r]||r}).filter(function(r){if(seen[r]||r===k)return false;seen[r]=1;return true})});
 /* make relations symmetric */
 Object.keys(I).forEach(function(k){(I[k].rel||[]).forEach(function(r){if(I[r]&&I[r].rel.indexOf(k)<0)I[r].rel.push(k)})});
 
@@ -425,15 +428,15 @@ function card(id,icon,cls,title,chips){
  if(!I[id].rel)I[id].rel=[];chips.forEach(function(x){if(I[id].rel.indexOf(x[0])<0)I[id].rel.push(x[0]);if(I[x[0]].rel.indexOf(id)<0)I[x[0]].rel.push(id)});
  return c}
 var A=document.getElementById('areas');
-[['d_ai','ai','G','Artificial Intelligence & Data',[['code_A','Code A','A'],['x_data','Data protection','R'],['x_sbx_ai','Sandbox (AI)','A']]],
- ['d_infra','infra','G','Digital Infrastructure',[['code_E','Code E','A'],['code_F','Code F','A'],['x_data','Cross-border data','R'],['x_perm','F.5 permit','R']]],
- ['d_vent','vent','G','Venture & Investment',[['code_H','Code H','A'],['s_inv','Investors','R'],['s_spv','SPV','R'],['x_perm','H.6 to category M','R']]],
- ['d_saas','saas','G','SaaS & Digital Products',[['code_B','Code B','A'],['code_K','Code K','A'],['x_resale','Resale excluded','R'],['x_data','Data protection','R']]],
- ['d_bt','bt','G','Big Tech & Global Business Services',[['code_D','Code D','A'],['x_eor','EOR: labour, immigration','R'],['s_hold','HQ (D.7)','R'],['x_perm','D.8 permit','R']]],
- ['d_rd','rd','G','Innovation & R&D',[['code_I','Code I','A'],['x_prod','Production Area','R'],['sbx','Sandbox','A']]],
- ['d_game','game','G','Game Development & Creative Tech',[['code_C','Code C','A'],['x_perm','C.6 gambling excluded','R']]],
- ['d_ip','ip','G','IP Holding & Commercialisation',[['code_G','Code G','A'],['x_ip','IP register, title','R'],['s_hold','Holding / SPV','R'],['x_tax','Tax classification','R']]],
- ['d_edu','edu','G','Education & Talent',[['code_J','Code J','A'],['x_perm','J.4 licensed education','R']]]
+[['d_ai','ai','G','Artificial Intelligence & Data',[['l_cert','Certificate','F'],['x_data','Data protection','R'],['x_sbx_ai','Sandbox (AI)','A']]],
+ ['d_infra','infra','G','Digital Infrastructure',[['l_cert','Certificate','F'],['x_data','Cross-border data','R'],['x_perm','Trust services permit','R']]],
+ ['d_vent','vent','G','Venture & Investment',[['l_cert','Certificate','F'],['s_inv','Investor status','R'],['s_spv','SPV','R'],['x_perm','Fund management: licence','R']]],
+ ['d_saas','saas','G','SaaS & Digital Products',[['l_cert','Certificate','F'],['x_data','Data protection','R'],['x_resale','Resale excluded','R']]],
+ ['d_bt','bt','G','Big Tech & Global Business Services',[['l_cert','Certificate','F'],['x_eor','EOR: labour, visas','R'],['s_hold','HQ structure','R'],['x_perm','Audit, legal, tax: permit','R']]],
+ ['d_rd','rd','G','Innovation & R&D',[['l_cert','Certificate','F'],['x_prod','Production Area','R'],['sbx','Regulatory Sandbox','A']]],
+ ['d_game','game','G','Game Development & Creative Tech',[['l_cert','Certificate','F'],['x_perm','Gambling excluded','R']]],
+ ['d_ip','ip','G','IP Holding & Commercialisation',[['l_cert','Certificate','F'],['x_ip','IP register and title','R'],['s_hold','Holding / SPV','R'],['x_tax','Tax classification','R']]],
+ ['d_edu','edu','G','Education & Talent',[['l_cert','Certificate','F'],['x_perm','Licensed education','R']]]
 ].forEach(function(x){
  if(x[4].some(function(c){return c[0]==='x_sbx_ai'})){N('x_sbx_ai','cond','Sandbox (AI)','AI projects can be tested in the Regulatory Sandbox.',['Admission is decided by the Governing Council. Law Art. 74 and 75 set the AI regime of the Center.','Registrar role is to be confirmed.'],[['law','Art. 39–43, 74–75']],['sbx'],{draft:1});I['sbx'].rel.push('x_sbx_ai')}
  A.appendChild(card(x[0],x[1],'G',x[3],x[4].map(function(c){return c}).map(function(c){return [c[0],c[1],c[2]]})))});
@@ -442,14 +445,14 @@ document.querySelectorAll('#areas .card').forEach(function(c){c.className='card 
 
 var S=document.getElementById('struct');
 [['s_op','op','Operating Companies',[['co','Companies','F'],['l_cert','Certificate first','F'],['x_office','Office, email','F']]],
- ['s_hold','hold','Holding Companies & HQ',[['x_subst','Substance','R'],['x_acct','Separate accounts','R'],['code_D','HQ: D.7','A']]],
- ['s_spv','spv','SPV / Project Structures',[['x_obj','Limited objects','A'],['x_csp','Provider office','R'],['code_H','H.5','A']]],
+ ['s_hold','hold','Holding Companies & HQ',[['x_subst','Substance test','R'],['x_acct','Separate accounts','R'],['d_bt','HQ activity','A'],['d_ip','IP holding','A']]],
+ ['s_spv','spv','SPV / Project Structures',[['x_obj','Limited objects','A'],['x_csp','Provider office','R'],['d_vent','Venture holdings','A']]],
  ['s_rec','rec','Recognised Companies',[['x_rec','Branch','A'],['x_cont','Continuation','R'],['x_merge','Merger consent','R']]],
  ['s_inv','inv','Investors',[['x_invcert','Investor Certificate','F'],['x_start','Start-up','R'],['x_self','Self-directed','R']]]
 ].forEach(function(x){S.appendChild(card(x[0],x[1],'',x[2],x[3]));});
 document.querySelectorAll('#struct .card').forEach(function(c){c.className='card'});
 
-put('sbx-c',[['sbx','Admission: Governing Council','A'],['code_L','Code L (L.4 testing)','A'],['code_M','Code M regulated, licence first','R'],['x_perm','Competent Regulator permit','R']]);
+put('sbx-c',[['sbx','Admission by Governing Council','A'],['fin_L','FinTech and DLT testing','A'],['fin_M','Regulated finance: licence first','R'],['x_perm','Other regulator\'s permit','R']]);
 put('acc-c',[['a_acc','Accreditation Permit','A'],['a_aud','Registered auditor','A'],['a_perm','Permission','R'],['a_ex','Exemption','R'],['x_acc','Not a Participant','F']]);
 put('life-c',[['l_adm','Admission','F'],['l_cert','Certificate','F'],['l_renew','Renewal + Confirmation','F'],['l_name','Names','R'],['l_chg','Changes in details','F'],['l_bo','Beneficial ownership','F'],['l_act','Activity change','R'],['l_info','Information, inspection','R'],['l_dir','Directions, undertakings','R'],['l_fine','Censures, fines','R'],['l_susp','Suspension, revocation','R'],['l_strike','Strike-off','R'],['l_rest','Restoration','R']]);
 document.querySelectorAll('#sbx-c .chip').forEach(function(c){if(c.dataset.id==='sbx')c.classList.add('dr')});
