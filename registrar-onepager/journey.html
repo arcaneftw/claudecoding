@@ -1,0 +1,355 @@
+<title>Registrar Journey Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: fixed 4:3 stage (1200x900) scaled to the window, no page scroll. Journey matrix: six stages across, six participant types down, decision gates under the stage names, outputs and decision-makers under the grid, acts along the bottom. Every item opens its detail on click and lights up what it connects to. */
+:root{
+  --bg1:#e6f3ee; --bg2:#eef5fb; --panel:#ffffff; --ink:#12284a; --muted:#5b6b82; --line:#c9dde6;
+  --blue:#1a6fd0; --blue-soft:#e4effb; --green:#1b9a55; --green-soft:#e3f5ea; --amber:#c0831a; --amber-soft:#fcf0d8;
+  --navy:#14305c; --chip:#f3f8fb; --shadow:0 8px 28px rgba(20,48,92,.22);
+  --font:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg1:#0b1a1b; --bg2:#0d1826; --panel:#12262b; --ink:#e6f0f2; --muted:#98adb2; --line:#28454c;
+  --blue:#5aa6ff; --blue-soft:#15314f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
+  --navy:#a4c8ff; --chip:#183339; --shadow:0 8px 28px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg1:#0b1a1b; --bg2:#0d1826; --panel:#12262b; --ink:#e6f0f2; --muted:#98adb2; --line:#28454c;
+  --blue:#5aa6ff; --blue-soft:#15314f; --green:#3fcf84; --green-soft:#12362a; --amber:#e8ab45; --amber-soft:#3a2d12;
+  --navy:#a4c8ff; --chip:#183339; --shadow:0 8px 28px rgba(0,0,0,.5);color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));color:var(--ink);font-family:var(--font);font-size:12px;line-height:1.3}
+h1,h2,h3,p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-radius:8px}
+
+#viewport{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden}
+#stage{width:1200px;height:900px;position:relative;flex:none;transform-origin:center center;display:grid;grid-template-rows:50px minmax(0,1fr) auto 18px;gap:8px;padding:10px 12px 6px}
+
+.panel{background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;min-width:0}
+.panel.blue{border-color:var(--blue)}
+.pt{font-size:13px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);white-space:nowrap}
+.pt em{font-style:normal;color:var(--blue)}
+.psub{color:var(--muted);font-size:11px;font-style:italic}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.top h1{font-size:22px;font-weight:800;color:var(--navy);padding-left:10px;border-left:4px solid var(--green);white-space:nowrap}
+.top h1 small{font-size:12px;font-weight:600;color:var(--muted);margin-left:10px;letter-spacing:.02em}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{font-weight:800;font-size:15px;line-height:1;color:var(--navy);position:relative;padding-left:10px}
+.logo::before{content:"";position:absolute;left:0;top:-2px;width:7px;height:7px;background:var(--green)}
+.logo b{color:var(--green)}
+.tb{border:1.5px solid var(--line);background:var(--chip);border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+.tb:hover{border-color:var(--blue)}
+
+/* journey matrix */
+.matrix{height:100%;display:grid;grid-template-columns:140px repeat(6,minmax(0,1fr));grid-template-rows:auto auto repeat(6,minmax(0,1fr)) auto auto;gap:5px;min-height:0}
+.lab{align-self:center;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-right:6px;text-align:right}
+.stg{border:1.5px solid var(--blue);background:var(--blue-soft);border-radius:12px;padding:5px 8px 6px;text-align:left;display:grid;gap:1px;position:relative}
+.stg b{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;color:var(--navy);display:flex;gap:6px;align-items:center}
+.stg b i{font-style:normal;flex:none;width:19px;height:19px;border-radius:50%;background:var(--navy);color:var(--panel);display:grid;place-items:center;font-size:11px}
+.stg span{font-size:10.5px;color:var(--muted);line-height:1.2}
+.stg[data-id=st6]::after{display:none}
+.stg::after{content:"";position:absolute;right:-8px;top:50%;width:8px;height:8px;border-top:2.5px solid var(--green);border-right:2.5px solid var(--green);transform:translateY(-50%) rotate(45deg);z-index:2}
+.stg:hover,.rowh:hover{border-color:var(--navy)}
+
+.gates{display:flex;flex-direction:column;gap:3px;align-items:stretch;justify-content:center}
+.gate{display:flex;align-items:center;gap:6px;border:1.5px dashed var(--amber);background:var(--amber-soft);border-radius:9px;padding:2px 7px;font-size:10.5px;font-weight:600;text-align:left;line-height:1.15}
+.gate::before{content:"";flex:none;width:8px;height:8px;background:var(--amber);transform:rotate(45deg)}
+.gate:hover{border-style:solid}
+
+.rowh{border:1.5px solid var(--green);background:var(--green-soft);border-radius:12px;padding:5px 8px;display:flex;gap:7px;align-items:center;text-align:left}
+.ico{flex:none;width:26px;height:26px;border-radius:8px;background:var(--panel);color:var(--green);display:grid;place-items:center}
+.ico svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.rowh b{font-size:11.5px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.01em;line-height:1.15}
+
+.cell{border:1.5px solid var(--line);background:var(--panel);border-radius:11px;padding:5px 7px 5px 17px;text-align:left;position:relative;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0;transition:opacity .12s,background .12s,border-color .12s}
+.cell::before{content:"";position:absolute;left:6px;top:9px;width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.cell.A::before{background:var(--green)} .cell.R::before{background:var(--amber)}
+.cell.dr{border-style:dashed}
+.cell b{font-size:11.5px;font-weight:600;line-height:1.2;color:var(--ink)}
+.cell u{text-decoration:none;font-size:10.5px;font-weight:700;color:var(--green);line-height:1.15}
+.cell:hover{border-color:var(--blue);background:var(--blue-soft)}
+
+.foot{border:1.5px solid var(--line);background:var(--chip);border-radius:10px;padding:3px 7px;font-size:10.5px;text-align:left;line-height:1.2;font-weight:600}
+.foot.dec{border-color:var(--navy)}
+.foot:hover{border-color:var(--blue);background:var(--blue-soft)}
+
+/* bottom acts strip */
+.acts{display:grid;grid-template-columns:150px 1fr;gap:10px;align-items:center;padding:7px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:4px 5px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--chip);border-radius:9px;padding:2px 8px;font-size:11.5px;font-weight:500;text-align:left;line-height:1.2;transition:opacity .12s,background .12s,border-color .12s}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);flex:none}
+.chip.dr{border-style:dashed}
+.chip:hover{border-color:var(--blue);background:var(--blue-soft)}
+
+/* selection */
+body.has-sel #stage .cell:not(.rel):not(.sel),body.has-sel #stage .stg:not(.rel):not(.sel),body.has-sel #stage .rowh:not(.rel):not(.sel),body.has-sel #stage .gate:not(.rel):not(.sel),body.has-sel #stage .foot:not(.rel):not(.sel),body.has-sel #stage .chip:not(.rel):not(.sel){opacity:.3}
+.rel.cell,.rel.stg,.rel.rowh,.rel.chip,.rel.foot{background:var(--blue-soft);border-color:var(--blue)}
+.rel.gate{border-style:solid}
+.sel{border-color:var(--navy)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 40%,transparent)}
+
+.legend{display:flex;gap:4px 18px;align-items:center;font-size:11px;color:var(--muted);padding-left:6px;white-space:nowrap}
+.legend b{color:var(--ink)} .legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%} .dash{width:24px;height:12px;border:1.5px dashed var(--muted);border-radius:5px}
+.dia{width:9px;height:9px;background:var(--amber);transform:rotate(45deg)}
+
+/* detail panel */
+#info{position:absolute;top:62px;bottom:30px;width:420px;background:var(--panel);border:2px solid var(--navy);border-radius:16px;box-shadow:var(--shadow);z-index:10;display:none;flex-direction:column;overflow:hidden}
+#info.on{display:flex} #info.right{right:12px} #info.left{left:12px}
+.ih{padding:12px 14px 10px;border-bottom:1.5px solid var(--line);position:relative;display:grid;gap:3px}
+.ik{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green)}
+.ih h2{font-size:17px;font-weight:800;color:var(--navy);line-height:1.15;padding-right:30px;text-wrap:balance}
+.ih p{color:var(--muted);font-size:12px}
+.xb{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:var(--chip);font-size:16px;line-height:1;padding:0}
+.ib{overflow:auto;padding:10px 14px 14px;display:grid;gap:11px;align-content:start}
+.ib h3{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.ib ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+.ib li{position:relative;padding-left:13px;font-size:12px}
+.ib li::before{content:"";position:absolute;left:1px;top:.5em;width:5px;height:5px;border-radius:50%;background:var(--green)}
+.ib p.t{font-size:12px}
+.basis li::before{background:var(--blue)}
+.basis button{border:0;background:var(--blue-soft);color:var(--navy);border-radius:5px;padding:0 5px;font-size:11px;font-weight:700;margin-right:4px}
+.flag{background:var(--amber-soft);border:1.5px dashed var(--amber);border-radius:10px;padding:7px 10px;font-size:11.5px}
+.flag b{color:var(--amber)}
+.branch{border:1.5px solid var(--line);border-radius:10px;padding:6px 9px;font-size:12px;background:var(--chip)}
+.branch b{color:var(--navy);display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+#info .chip{opacity:1!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div id="viewport">
+<div id="stage">
+  <header class="panel top">
+    <h1>REGISTRAR'S JOURNEY MAP<small>FROM APPLICATION TO EXIT, BY TYPE OF PARTICIPANT</small></h1>
+    <div class="brand"><button class="tb" id="clear" type="button">Clear</button><button class="tb" id="theme" type="button">Theme</button><div class="logo">Enterprise<br><b>Uzbekistan</b></div></div>
+  </header>
+
+  <section class="panel blue" style="padding:8px 10px;min-height:0"><div class="matrix" id="mx"></div></section>
+
+  <section class="panel blue acts">
+    <div><div class="pt">ACTS</div><div class="psub">Click to see where each is used</div></div>
+    <div class="chips" id="acts"></div>
+  </section>
+
+  <div class="legend">
+    <b>Applicability:</b>
+    <span><i class="dot" style="background:var(--blue)"></i>Foundational (all participants)</span>
+    <span><i class="dot" style="background:var(--green)"></i>Activity-based</span>
+    <span><i class="dot" style="background:var(--amber)"></i>Relevance-based</span>
+    <span><i class="dash"></i>Caveat: draft, role to confirm</span>
+    <span><i class="dia"></i>Decision gate</span>
+    <span>* see detail</span>
+  </div>
+
+  <aside id="info" aria-live="polite">
+    <div class="ih"><div class="ik" id="i-k"></div><h2 id="i-t"></h2><p id="i-s"></p><button class="xb" id="xb" type="button" aria-label="Close">&times;</button></div>
+    <div class="ib" id="i-b"></div>
+  </aside>
+</div>
+</div>
+
+<script>
+var K={stage:'Journey stage',row:'Type of participant',cell:'Step',gate:'Decision gate',out:'Output',dec:'Who decides',act:'Act',pend:'Referenced act, file not yet received',body:'Decision-making body'};
+var SHORT={law:'Law of the IDTC',op:'Operating Regs',co:'Companies Regs',pa:'Permitted Activities',pr:'Participants Regs',ce:'Certificates Rules',dmp:'Decision-Making',ps:'Public Services',reg:'Public Register'};
+var I={};
+function N(id,kind,t,sum,o){I[id]=Object.assign({id:id,kind:kind,t:t,sum:sum,rel:[],r:[]},o||{})}
+
+/* ===== acts ===== */
+N('law','act','Constitutional Law on the IDTC','Adopted 4 Aug 2026, approved by the Senate 8 Aug 2026.',{ap:['Does not name the Registrar; the office is created by the Operating Regulations (Art. 6).','Art. 22–23 Residents and Register of Participants; Art. 26–30 investors; Art. 33 accredited partners; Art. 68 services of the Center\'s bodies; Art. 78–79 liability.']});
+N('op','act','Operating Regulations','The core act of the Registrar: powers, Certificates, supervision, enforcement, strike-off.',{ap:['Art. 6–7 Registrar; Art. 9 Certificates, Permissions, Exemptions; Art. 10–18 names, office, changes, Confirmation Statement.','Part 5 inspections, directions, strike-off; Art. 38–39 censures and fines (Administration).']});
+N('co','act','Companies Regulations','Company code administered by the Registrar.',{ap:['Incorporation, types of company, SPV and Holding Company (Part 11), Recognised Companies (Part 12), transfer of incorporation (Part 13), strike-off and restoration.']});
+N('pa','act','Permitted Activities Regulations','Draft. The List of Permitted Activities and the conditions for each.',{draft:1,ap:['Resident acts only within the activities written in its Certificate; new activity needs prior approval.','Substance, separate accounting, IP and sandbox conditions.']});
+N('pr','act','Regulations on Participants','Draft. Admission, registration, rights and duties of Residents and Investors.',{draft:1,ap:['Application, fit and proper test, beneficial ownership, decision, Public Register, 12–36 month certificates.']});
+N('ce','act','Rules on Certificates, Permissions and Exemptions','Draft. Procedure for the five instruments the Registrar issues.',{draft:1,ap:['Certificate, Permission, Accreditation Permit, Investor Certificate, Exemption.','Common procedure: submit, completeness, assessment, decision, fees, signed issue.']});
+N('dmp','act','Decision-Making Procedures','How the Registrar decides: notice, hearing, reasons, publication.',{ap:['Ten principles; case file; silence is not approval; heavy measures go to the Administration with the case file.']});
+N('ps','act','Regulations on Public Services','Temporary. State services through the Center\'s platform.',{ap:['Unified Portal, "Licence" system, OneID registration of foreign Residents, electronic documents equal to paper.']});
+N('reg','act','Public Register','Official record kept by the Registrar.',{ap:['Name, number, legal form, status, validity, permitted activities, office, email. Separate registers of Permissions, Accreditation Permits, Exemptions, auditors.']});
+N('p_fees','pend','Rules on Fees and Fines','Referenced for fees, late-renewal fines and measures of liability. File not yet received.',{draft:1,ap:['Needed for exact amounts and the fines procedure.']});
+N('p_inc','pend','Rules on Application for Incorporation','Referenced for forms, Standard Articles and procedure. File not yet received.',{draft:1,ap:['Needed for incorporation details.']});
+N('p_inv','pend','Investment Regulations','Referenced for investor categories and status. File not yet received.',{draft:1,ap:['Needed for investor validity, renewal and exit.']});
+N('p_oth','pend','Tax & Customs, Data Protection, AML/CFT','Other special acts. Files not yet received.',{draft:1,ap:['The Registrar does not set tax consequences; AML/CFT compliance is a Registrar objective.']});
+
+/* ===== stages (columns) ===== */
+var STAGES=[
+['st1','Enter','Application and incorporation','The participant applies; the Registrar checks and registers.',
+ ['Applications go only through the official platform; the Registrar acknowledges and assigns a case number.','Completeness check, screening of owners, sanctions, reputation and real presence.','Decision, certificate of incorporation or status, entry in the Public Register.'],[['op','Art. 8, 11–12'],['co','Art. 11–12'],['pr','Art. 13–20'],['dmp','Art. 13–18']]],
+['st2','Certify','Which activities are allowed','The Registrar decides what the participant may do and on what conditions.',
+ ['Each activity is matched to the List; one principal activity, others as separate endorsements.','Another regulator\'s licence is recorded; the Certificate never replaces it.','Valid 12 to 36 months, 12 by default.'],[['op','Art. 9'],['ce','Art. 7–9, 13–18, Part 4'],['pa','Art. 6–8']]],
+['st3','Operate','Duties while active','Keep office, registers and activity inside the Certificate.',
+ ['Registered office and email in the Center; principal business carried on in the Center.','Status and activity endorsements are shown in the Public Register.','Notices are served electronically through the digital account.'],[['op','Art. 13–15, 18'],['pr','Art. 21, 24–25']]],
+['st4','Renew & change','Keep the record true','Renewal, Confirmation Statement and changes in details.',
+ ['Renew before expiry with the fee and a Confirmation Statement.','Report changes within 30 days; new standalone activity needs prior approval.','Late renewal within 30 days of expiry carries no fine; later, an automatic fine.'],[['op','Art. 9(9)–(11), 16–17'],['ce','Art. 24, 34'],['pa','Art. 7(4)–(5)']]],
+['st5','Supervise & enforce','Check and correct','Risk-based monitoring and graded measures.',
+ ['Information requests, inspection, directions, undertakings, variation or suspension.','Censures, fines and loss of status are decided by the Administration on the Registrar\'s case file.','Decisions can be taken to Court.'],[['op','Art. 23–32, 37–40'],['dmp','Art. 7, 19–27'],['law','Art. 78–79']]],
+['st6','Exit','Strike-off and restoration','End the record properly, or restore it through the Court.',
+ ['Strike-off after notice and 3 months to show cause; the entity is dissolved.','Officers stay liable; records kept 6 years.','Only the Court can restore.'],[['op','Art. 33–34'],['co','Art. 151']]]
+];
+STAGES.forEach(function(s,i){N(s[0],'stage',(i+1)+'. '+s[1],s[3],{ap:s[4],r:s[5],sub:s[2],num:i+1})});
+
+/* ===== participant types (rows) ===== */
+var ROWS=[
+['rw1','Private / Public Company','op','The ordinary operating company.',['Private Company: limited by shares, by guarantee or unlimited; no public offers. Public Company may offer shares and has stricter rules.','Needs a Certificate of Permitted Activities before it starts business.'],[['co','Art. 7, 11–13, 26–31']]],
+['rw2','Holding & HQ','hold','Holds shares, IP or interests, or runs headquarters functions.',['A prescribed type under Companies Regs Part 11; regulated activity only with separate authorisation.','Substance proportionate to the purpose; separate accounts for activity in and outside the Center.'],[['co','Part 11'],['pa','Art. 6(9),(11),(12), 9(13)']]],
+['rw3','SPV / Project structure','spv','A Private Company with a narrow approved purpose. Not a separate legal form.',['Objects limited to the approved purpose; no unrelated commercial activity.','Registrar can revoke the SPV designation.'],[['co','Part 11, SPV']]],
+['rw4','Recognised Company','rec','Branch or representative office of a foreign company; also continuation of a foreign company.',['A Foreign Company may not carry on business in the Center unless registered (Part 12) or continued (Part 13).','Mergers with a Foreign Company need Registrar consent.'],[['co','Part 12–13, Art. 113']]],
+['rw5','Investor','inv','Institutional, start-up, resident-investor, infrastructure investor.',['Investor Certificate records status and category and does not authorise activity.','Start-up investors need no separate registration by default.'],[['law','Art. 26–30'],['ce','Part 7'],['pr','Art. 9–11']]],
+['rw6','Accredited partner / permit holder','ip','Accredited partners, non-residents with Permission, Exempt persons, auditors.',['Accredited partners are not Participants and get no benefits.','Permission, Exemption and Accreditation Permit each have their own term.'],[['law','Art. 33, 69'],['ce','Parts 5, 6, 8'],['op','Art. 9(4)–(5), 19–21']]]
+];
+ROWS.forEach(function(r){N(r[0],'row',r[1],r[3],{ap:r[4],r:r[5],icon:r[2]})});
+
+/* ===== cells: [row,col, label, badge, applicability, dashed, participant, registrar, time, decides, basis, flag] ===== */
+var C=[
+['rw1','st1','Incorporation','1 business day*','F',0,'Files the application with Articles of Association on the platform.','Checks completeness, screens owners, issues the certificate of incorporation and registered number, enters the name in the Public Register.','* A standard electronic application with no extra checks is decided 1 business day after completeness. Other complete applications: 15 business days.','Registrar.',[['co','Art. 11–12'],['dmp','Art. 16'],['pr','Art. 13–20']],'Companies Regs let the Registrar refuse without reasons. Operating Regs Art. 66 and DMP Art. 28 require reasons. Align the rule.'],
+['rw1','st2','Certificate of Permitted Activities','10 business days','F',0,'Names the principal and any additional activities; can apply together with incorporation.','Matches activities to the List, sets conditions, records Activity Endorsements, notes any other regulator\'s licence.','Decision within 10 business days of completeness (Certificates Rules). Certificate valid 12–36 months, 12 by default.','Registrar.',[['ce','Art. 7–9, 13–18, Part 4'],['pa','Art. 6–8'],['op','Art. 9']],'Certificates Rules say 10 business days; DMP Art. 16(2) says 15. Confirm which prevails.'],
+['rw1','st3','Office, email, public record','from day 1','F',0,'Keeps a registered office and email in the Center, runs principal business there and stays inside the Certificate.','Shows status and activities in the Public Register; serves notices electronically.','Ongoing.','Registrar.',[['op','Art. 13, 15, 18'],['pr','Art. 21, 24–25']]],
+['rw1','st4','Renewal, Confirmation Statement, changes','30 days','F',0,'Renews before expiry with fee and Confirmation Statement; reports changes within 30 days; asks approval for a new activity.','Issues an updated Certificate; approves new activities.','30 days to report changes. Late renewal within 30 days of expiry: no fine; after: automatic fine.','Registrar; fines are applied by the Administration.',[['op','Art. 9(9)–(11), 16–17'],['ce','Art. 24, 34'],['pa','Art. 7(4)–(5)']]],
+['rw1','st5','Inspection, directions, fines','10 business days notice','R',0,'Answers information requests, allows inspection, remedies breaches.','Issues directions, accepts undertakings, varies or suspends; prepares the case file for fines.','Written notice of variation, suspension or revocation within 10 business days.','Registrar for directions; Administration for fines and status; Court.',[['op','Art. 23–32, 37–39'],['dmp','Art. 7, 19–27']]],
+['rw1','st6','Strike-off','3 months notice','R',0,'Winds up or applies for strike-off; keeps records for 6 years.','Publishes notice, allows 3 months to show cause, strikes off; the entity is dissolved.','3 months; records 6 years.','Registrar; Administration consent where the Resident holds a certification; Court restores.',[['op','Art. 33–34'],['co','Art. 151']]],
+
+['rw2','st1','Incorporation as Holding Company','Part 11','A',0,'Incorporates as a Private Company that operates as a Holding Company.','As for any company; may ask for confirmations.','As for a Private Company.','Registrar.',[['co','Part 11']]],
+['rw2','st2','Certificate: headquarters or IP holding','substance','A',0,'Declares headquarters (management and coordination) or IP holding activity and shows substance.','Checks substance proportionate to the purpose. Operations of foreign subsidiaries are not covered by the headquarters endorsement.','10 business days.','Registrar.',[['pa','Art. 6(9),(11), 9(5), 9(13)'],['ce','Art. 8–9']]],
+['rw2','st3','Separate accounts, IP register','ongoing','R',0,'Keeps separate records in and outside the Center; IP register and chain of title; documented intra-group deals.','Receives IP data through the non-public part of the platform; publishes only activity status.','Ongoing.','Registrar.',[['pa','Art. 6(12), 9(9)–(11)']]],
+['rw2','st4','Renewal, 12-month activity check','12 months','R',0,'Renews; if the primary activity has not started within 12 months, explains.','May ask for an explanation and a plan; the rule does not apply automatically to a structure that fulfils its approved purpose.','12 months.','Registrar.',[['pa','Art. 7(7), 9(13)'],['ce','Art. 24']]],
+['rw2','st5','Substance and title checks','risk-based','R',0,'Provides contracts, invoices and evidence on request.','Requests proportionate evidence. Tax classification is not the Registrar\'s decision.','As set in the notice.','Registrar; Administration for liability measures.',[['pa','Art. 7(10), 10(4)–(5), 11(2)']]],
+['rw2','st6','Strike-off','3 months notice','R',0,'As for any Resident.','As for any Resident.','3 months.','Registrar; Administration consent in some cases.',[['op','Art. 33']]],
+
+['rw3','st1','SPV with limited objects','Part 11','A',0,'Incorporates as a Private Company with objects limited to the approved purpose.','Approves the purpose: holding assets, shares or IP; financing; group holding vehicle; other approved purpose.','As for a Private Company.','Registrar.',[['co','Part 11, SPV']]],
+['rw3','st2','Certificate for the approved purpose','10 business days','A',0,'Applies for activities consistent with the SPV purpose.','Certifies only what fits the purpose; no regulated financial or professional activity unless separately authorised.','10 business days.','Registrar.',[['co','Part 11, SPV (3),(6)'],['ce','Art. 8']]],
+['rw3','st3','Provider office allowed','','R',0,'May use an approved corporate services provider as registered office.','Approves the arrangement.','Ongoing.','Registrar.',[['co','Part 11, SPV (5)']]],
+['rw3','st4','Purpose confirmations','','R',0,'Provides confirmations that SPV conditions are still met.','May require confirmations and information.','As set in the request.','Registrar.',[['co','Part 11, SPV (7)']]],
+['rw3','st5','Designation can be revoked','','R',0,'Keeps within the approved purpose.','Revokes the SPV designation if conditions are not met; the company becomes an ordinary Private Company.','As set in the notice.','Registrar.',[['co','Part 11, SPV (8)']]],
+['rw3','st6','Strike-off','3 months notice','R',0,'As for any Resident.','As for any Resident.','3 months.','Registrar; Administration consent in some cases.',[['op','Art. 33']]],
+
+['rw4','st1','Register or continue','Part 12 / 13','A',0,'A foreign company registers as Recognised Company, or continues as a Company in the Center.','Registers; for continuation checks certified home documents and issues a certificate of continuation.','Application to decision under the common procedure.','Registrar.',[['co','Part 12–13']]],
+['rw4','st2','Certificate for activity in the Center','10 business days','F',0,'Applies for the activities to be run by the branch or office.','As for any Resident.','10 business days.','Registrar.',[['ce','Art. 7–9']]],
+['rw4','st3','Place of business, accounts','ongoing','R',0,'Keeps a place of business in the Center and accounting records.','Keeps the entry current.','Ongoing.','Registrar.',[['co','Part 12']]],
+['rw4','st4','Renewal, changes','30 days','F',0,'As for any Resident.','As for any Resident.','30 days for changes.','Registrar.',[['op','Art. 16–17']]],
+['rw4','st5','Inspection and remedies as for Residents','risk-based','R',0,'Cooperates with inspection.','Uses the same remedies as for incorporated Residents.','As set in the notice.','Registrar; Administration; Court.',[['co','Part 12, Art. 140'],['op','Part 5']]],
+['rw4','st6','Strike-off or transfer out','Art. 146–147','R',1,'Winds up, or applies to transfer incorporation out of the Center.','Strikes off, or authorises or refuses a transfer out.','Not found in the files.','Registrar.',[['co','Art. 146–147, 151']],'The route for deregistering a branch is not clear from the acts on file. Confirm.'],
+
+['rw5','st1','Investor status','Investor Certificate','A',0,'States the category: institutional, resident-investor or infrastructure. Start-up investors need none by default.','Records status and category in the Register of Participants and issues the Investor Certificate.','Common procedure.','Registrar.',[['ce','Part 7'],['law','Art. 26–30'],['pr','Art. 9–11']],'Criteria and procedure are in the Investment Regulations, which are not on file.'],
+['rw5','st2','Status only, no activity authorised','','R',0,'Applies for a Certificate of Permitted Activities if it also operates.','Does not treat the Investor Certificate as authority to operate.','—','Registrar.',[['ce','Art. 6(3)']]],
+['rw5','st3','Register of Participants','','R',0,'Keeps its details current. Self-directed investors may use simplified registration.','Maintains the entry; some investors are kept in a non-public register.','Ongoing.','Registrar; Administration decides who is entered in a register.',[['pr','Art. 11, 21'],['law','Art. 23']]],
+['rw5','st4','Renewal of status','','R',1,'Renews where the status has a term.','Validity and renewal follow the Investment Regulations.','Not on file.','Registrar.',[['pr','Art. 23']],'Validity and renewal depend on the Investment Regulations.'],
+['rw5','st5','Fit and proper, beneficial ownership','risk-based','R',0,'Discloses owners and controllers; updates them after changes.','May refuse, suspend or condition the status for failing fit and proper tests.','As set in the notice.','Registrar; Administration for suspension or termination.',[['pr','Art. 16–17']]],
+['rw5','st6','Status ends','','R',1,'Status ends by expiry, termination or request.','Records the end in the Register.','Not on file.','Administration for termination.',[['law','Art. 79'],['pr','Art. 20–23']],'Exit rules for Investors depend on the Investment Regulations.'],
+
+['rw6','st1','Apply for permit, Permission or Exemption','common procedure','A',0,'Applies for an Accreditation Permit, a Permission, or an Exemption.','Runs the common procedure: acknowledgement, completeness, assessment, decision.','10 business days after completeness.','Registrar; Exemption needs Administration approval.',[['ce','Parts 5, 6, 8'],['law','Art. 33']]],
+['rw6','st2','Permit states services or acts','12 m / 36 m / 12 m','A',0,'Receives a permit listing the services or acts allowed.','Accreditation Permit 12 months; Permission up to 36; Exemption up to 12. Review period of an Exemption is extended while the Administration decides, by up to 15 business days.','As stated.','Registrar; Administration for Exemptions.',[['ce','Art. 26, 28, 31–33'],['op','Art. 9(4)–(5)']]],
+['rw6','st3','Only what the permit says','ongoing','R',0,'Does only what the permit allows. Auditors also register with the Registrar. Accredited partners get no benefits.','Keeps registers of permits and auditors.','Ongoing.','Registrar.',[['law','Art. 33'],['op','Art. 19–21']]],
+['rw6','st4','Renew before expiry','','R',0,'Applies before expiry; an Exempt person reports within 10 business days if no longer eligible.','Decides on renewal under the common procedure.','As stated in the permit.','Registrar.',[['ce','Art. 28, 33']]],
+['rw6','st5','Variation, suspension, revocation','10 business days notice','R',0,'Complies with the decision; stops the activity during suspension.','Varies, suspends or revokes with written notice within 10 business days.','10 business days to notify.','Registrar; Administration for liability measures.',[['op','Art. 9(7)–(8)'],['ce','Part 9']]],
+['rw6','st6','Expiry','','R',0,'Stops activity at expiry, keeps records and obligations.','Records the expiry.','—','Registrar.',[['ce','Art. 37']]]
+];
+C.forEach(function(c){var id=c[0]+'_'+c[1];N(id,'cell',c[2],c[3]||'Step',{app:c[4],dr:c[5],p:c[6],g:c[7],tm:c[8],d:c[9],r:c[10],flag:c[11],row:c[0],stage:c[1],badge:c[3]})});
+
+/* ===== gates ===== */
+var G=[
+['g1','st1','Complete?','Is the application complete?',[['Yes','The Registrar acknowledges it, confirms completeness on the platform and starts the clock.'],['No','Deficiency Notice with at least 20 business days to fix. If not fixed, the application is treated as withdrawn.']],[['ce','Art. 11–12'],['dmp','Art. 14–15']]],
+['g2','st2','Other licence?','Does the activity need another regulator\'s permission?',[['Yes','The Certificate is issued with the endorsement "not yet activated" until the licence is shown. A Certificate never replaces the licence.'],['No','The endorsement is active from the effective date.']],[['pa','Art. 6(10), 9(1)'],['ce','Art. 6(4), 8(6), 9(4)']]],
+['g3','st2','Refusal?','Is a refusal or unrequested condition proposed?',[['Yes','Notice of the proposed decision; 10 business days to respond (DMP default 14 days). The Registrar considers the answer, then grants, grants with conditions, or refuses, with written reasons. A refused applicant can reapply or go to Court.'],['No','Granted as requested; reasons are not required.']],[['ce','Art. 15–16, 18'],['dmp','Art. 17, 28'],['op','Art. 40']]],
+['g4','st4','On time?','Renewed before expiry?',[['Yes','Renewal follows the common procedure with a new Confirmation Statement.'],['Within 30 days after expiry','Granted; the Certificate is treated as continuing; fine waived.'],['Later','Granted if appropriate; the Resident is liable to an automatic fine.']],[['ce','Art. 24'],['op','Art. 9(11)']]],
+['g5','st5','Who decides?','Breach found: who takes the measure?',[['Registrar','Direction, information request, undertaking, variation or suspension of a Certificate on its own initiative where there is a breach or the Center\'s interests require it.'],['Administration','Censure, fine, suspension or termination of Participant status, loss of benefits. The Registrar sends the case file.'],['Court','Compelling compliance, enforcing undertakings, winding up, review of Registrar decisions.']],[['op','Art. 9(7), 30–39'],['dmp','Art. 7'],['law','Art. 79']]],
+['g6','st6','Which route?','Why does the entry end?',[['Not operating or uncured breach','Notice in the Appointed Publication, 3 months to show cause, then strike-off and dissolution.'],['Penalty unpaid 3 months','Same route after the penalty is final.'],['Own application','Filed by the Resident, copied to owners, staff and creditors within 7 days.'],['Afterwards','Only the Court can restore.']],[['op','Art. 33–34']]]
+];
+G.forEach(function(g){N(g[0],'gate',g[2],g[3],{br:g[4],r:g[5],stage:g[1]})});
+
+/* ===== footer: outputs and deciders ===== */
+var OUT=[['st1','Certificate of incorporation'],['st2','Certificate of Permitted Activities'],['st3','Public Register entry'],['st4','Updated Certificate'],['st5','Direction, undertaking or notice'],['st6','Strike-off notice']];
+var DEC=[['st1','Registrar'],['st2','Registrar, Administration for Exemptions'],['st3','Registrar'],['st4','Registrar'],['st5','Registrar, Administration, Court'],['st6','Registrar, Administration consent, Court']];
+
+/* relations */
+Object.keys(I).forEach(function(k){var it=I[k];
+ if(it.kind==='cell'){it.rel.push(it.row,it.stage);it.r.forEach(function(r){it.rel.push(r[0])});G.forEach(function(g){if(g[1]===it.stage)it.rel.push(g[0])})}
+ if(it.kind==='gate'){it.rel.push(it.stage);it.r.forEach(function(r){it.rel.push(r[0])})}
+ if(it.kind==='stage'||it.kind==='row'){it.r.forEach(function(r){it.rel.push(r[0])})}
+});
+Object.keys(I).forEach(function(k){I[k].rel.forEach(function(r){if(I[r]&&I[r].rel.indexOf(k)<0)I[r].rel.push(k)})});
+STAGES.forEach(function(s){N('out_'+s[0],'out',OUT[s[0].slice(2)-1][1],'Output of stage '+s[0].slice(2)+'.',{stage:s[0],rel:[s[0]],ap:[]});I[s[0]].rel.push('out_'+s[0]);
+ N('dec_'+s[0],'dec',DEC[s[0].slice(2)-1][1],'Who decides at stage '+s[0].slice(2)+'.',{stage:s[0],rel:[s[0]],ap:[]});I[s[0]].rel.push('dec_'+s[0])});
+
+/* ===== render ===== */
+var ICONS={op:'<rect x="5" y="4" width="10" height="16"/><path d="M15 9h4v11h-4M8 8h4M8 12h4M8 16h4"/>',hold:'<rect x="9" y="3" width="6" height="5"/><path d="M12 8v4M6 12h12M6 12v3M18 12v3M12 12v3"/><rect x="4" y="15" width="4" height="4"/><rect x="10" y="15" width="4" height="4"/><rect x="16" y="15" width="4" height="4"/>',spv:'<path d="M4 18l5-6 4 3 7-9"/><path d="M4 21h16"/>',rec:'<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>',inv:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3 3 7 3s7-1.3 7-3v-6"/>',ip:'<path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/>'};
+function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function btn(cls,id,html){var b=el('button',cls,html);b.type='button';b.dataset.id=id;return b}
+var mx=document.getElementById('mx');
+// row 1: stage headers
+mx.appendChild(el('div','lab','Stage'));
+STAGES.forEach(function(s,i){mx.appendChild(btn('stg',s[0],'<b><i>'+(i+1)+'</i>'+esc(s[1])+'</b><span>'+esc(s[2])+'</span>'))});
+// row 2: gates
+mx.appendChild(el('div','lab','Gates'));
+STAGES.forEach(function(s){var w=el('div','gates');G.filter(function(g){return g[1]===s[0]}).forEach(function(g){w.appendChild(btn('gate',g[0],esc(g[2])))});mx.appendChild(w)});
+// participant rows
+ROWS.forEach(function(r){
+ mx.appendChild(btn('rowh',r[0],'<span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICONS[r[2]]+'</svg></span><b>'+esc(r[1])+'</b>'));
+ STAGES.forEach(function(s){var it=I[r[0]+'_'+s[0]];mx.appendChild(btn('cell '+it.app+(it.dr?' dr':''),it.id,'<b>'+esc(it.t)+'</b>'+(it.badge?'<u>'+esc(it.badge)+'</u>':'')))})});
+// footers
+mx.appendChild(el('div','lab','Output'));
+STAGES.forEach(function(s){mx.appendChild(btn('foot','out_'+s[0],esc(I['out_'+s[0]].t)))});
+mx.appendChild(el('div','lab','Decides'));
+STAGES.forEach(function(s){mx.appendChild(btn('foot dec','dec_'+s[0],esc(I['dec_'+s[0]].t)))});
+
+var acts=document.getElementById('acts');
+['law','op','co','pa','pr','ce','dmp','ps','reg','p_fees','p_inc','p_inv','p_oth'].forEach(function(id){var it=I[id];acts.appendChild(btn('chip'+(it.draft?' dr':''),id,esc(SHORT[id]||it.t.replace('Rules on Application for Incorporation','Incorporation Rules').replace('Tax & Customs, Data Protection, AML/CFT','Tax, Data, AML/CFT'))))});
+
+// detail content for footer items
+I['out_st1'].ap=['The certificate of incorporation is conclusive evidence that the company is duly incorporated and whether it is Private or Public.'];
+I['out_st2'].ap=['A digitally signed Certificate with a verification record; shows principal and additional activities, conditions and validity.'];
+I['out_st3'].ap=['Entry in the Public Register; electronic notices through the digital account.'];
+I['out_st4'].ap=['An updated Certificate after registered details change; certificate of name change where the name changes.'];
+I['out_st5'].ap=['Written direction, information requirement, enforceable undertaking, or notice of variation, suspension or revocation with reasons.'];
+I['out_st6'].ap=['Notice in the Appointed Publication, then removal from the Public Register and dissolution.'];
+I['dec_st1'].ap=['The Registrar decides; the Administration is involved only where a measure belongs to it.'];
+I['dec_st2'].ap=['The Registrar decides on Certificates and Permissions. An Exemption needs the Administration\'s approval.'];
+I['dec_st3'].ap=['The Registrar keeps the registers and serves notices.'];
+I['dec_st4'].ap=['The Registrar decides on renewal and approves new activities. Fines are applied by the Administration.'];
+I['dec_st5'].ap=['The Registrar uses directions and undertakings. The Administration decides censures, fines and status. The Court reviews and enforces.'];
+I['dec_st6'].ap=['The Registrar strikes off, with Administration consent where the Resident holds a certification. Only the Court restores.'];
+
+/* ===== interaction ===== */
+var stage=document.getElementById('stage'),info=document.getElementById('info'),cur=null;
+function nodes(id){return Array.prototype.slice.call(stage.querySelectorAll('[data-id="'+id+'"]'))}
+function clearMarks(){stage.querySelectorAll('.sel,.rel').forEach(function(n){n.classList.remove('sel','rel')})}
+function mark(id){clearMarks();document.body.classList.add('has-sel');nodes(id).forEach(function(n){n.classList.add('sel')});I[id].rel.forEach(function(r){nodes(r).forEach(function(n){if(!n.classList.contains('sel'))n.classList.add('rel')})})}
+function sec(h,inner){var s=el('div','','<h3>'+h+'</h3>');s.appendChild(inner);return s}
+function list(a){var u=el('ul');a.forEach(function(x){u.appendChild(el('li','',esc(x)))});return u}
+function open(id,push){
+ var it=I[id];if(!it)return;cur=id;mark(id);
+ var src=nodes(id)[0];var sc=curScale();var sr=stage.getBoundingClientRect();
+ if(src){var r=src.getBoundingClientRect();info.className='on '+(((r.left+r.width/2-sr.left)/sc)>600?'left':'right')}else info.className='on right';
+ var kind=K[it.kind]+(it.draft?' (draft)':'');
+ var title=it.t;
+ if(it.kind==='cell'){kind='Step: '+I[it.row].t+' · '+I[it.stage].t;title=it.t}
+ document.getElementById('i-k').textContent=kind;document.getElementById('i-t').textContent=title;document.getElementById('i-s').textContent=it.kind==='cell'?(it.badge||''):it.sum;
+ var b=document.getElementById('i-b');b.innerHTML='';
+ if(it.flag)b.appendChild(el('div','flag','<b>To confirm:</b> '+esc(it.flag)));
+ if(it.kind==='cell'){
+  b.appendChild(sec('Participant does',el('p','t',esc(it.p))));
+  b.appendChild(sec('Registrar does',el('p','t',esc(it.g))));
+  b.appendChild(sec('Time and output',el('p','t',esc(it.tm))));
+  b.appendChild(sec('Who decides',el('p','t',esc(it.d))));
+ }
+ if(it.kind==='gate'){var w=el('div','');w.style.cssText='display:grid;gap:6px';it.br.forEach(function(x){w.appendChild(el('div','branch','<b>'+esc(x[0])+'</b>'+esc(x[1])))});b.appendChild(sec(it.sum,w))}
+ if(it.ap&&it.ap.length&&it.kind!=='cell'){b.appendChild(sec(it.kind==='stage'?'What happens':'Details',list(it.ap)))}
+ if(it.r.length&&it.kind!=='act'&&it.kind!=='pend'){var s2=el('div','basis','<h3>Where it is written</h3>');var u2=el('ul');it.r.forEach(function(r){var li=el('li');var bt=el('button','',esc(SHORT[r[0]]||r[0]));bt.type='button';bt.onclick=function(){open(r[0],true)};li.appendChild(bt);li.appendChild(document.createTextNode(r[1]));u2.appendChild(li)});s2.appendChild(u2);b.appendChild(s2)}
+ var rels=it.rel.filter(function(r){return I[r]&&r!==id});
+ if(it.kind==='act'||it.kind==='pend'){var cells=rels.filter(function(r){return I[r].kind==='cell'});b.appendChild(sec('Used in '+cells.length+' steps',(function(){var w=el('div','chips');cells.slice(0,16).forEach(function(r){var c=el('button','chip',esc(I[I[r].row].t+': '+I[r].t));c.type='button';c.onclick=function(){open(r,true)};w.appendChild(c)});return w})()))}
+ else if(rels.length){var w2=el('div','chips');rels.slice(0,16).forEach(function(r){var lab=I[r].kind==='cell'?I[I[r].row].t+': '+I[r].t:I[r].t;if(lab.length>46)lab=lab.slice(0,44)+'…';var c=el('button','chip',esc(lab));c.type='button';c.onclick=function(){open(r,true)};w2.appendChild(c)});b.appendChild(sec('Connected on the map',w2))}
+ b.scrollTop=0;if(push){try{history.replaceState(null,'','#'+id)}catch(e){}}
+}
+function reset(){info.className='';clearMarks();document.body.classList.remove('has-sel');cur=null;try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+stage.addEventListener('click',function(e){if(e.target.closest('#info'))return;var t=e.target.closest('[data-id]');if(t&&!t.closest('.top')){open(t.dataset.id,true);return}if(cur&&!e.target.closest('.top'))reset()});
+document.getElementById('xb').onclick=reset;document.getElementById('clear').onclick=function(e){e.stopPropagation();reset()};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')reset()});
+document.getElementById('theme').onclick=function(e){e.stopPropagation();var r=document.documentElement;var d=r.getAttribute('data-theme')==='dark'||(!r.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);r.setAttribute('data-theme',d?'light':'dark')};
+var W=1200,H=900;function curScale(){return Math.min(innerWidth/W,innerHeight/H)}
+function fit(){stage.style.transform='scale('+curScale()+')'}
+addEventListener('resize',fit);fit();
+function fromHash(){var h=(location.hash||'').slice(1);if(h&&I[h])open(h,false)}
+addEventListener('hashchange',fromHash);fromHash();
+</script>
