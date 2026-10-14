@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enterprise Uzbekistan — Региональная платформа развития новых технологических экономик</title>
+<style>
+/* ============ Tokens ============ */
+:root{
+  --bg:#FAF8F4; --ink:#23282C; --mut:#667078; --line:#D8D3C8; --paper:#fff;
+  --petrol:#0F3B4C; --teal:#1E9C93; --dteal:#2A6B68; --burg:#7B2D3C; --bronze:#8F6E3F;
+  --c1:var(--burg); --c2:var(--dteal); --c3:var(--petrol); --c4:var(--bronze);
+  --serif:Georgia,"Times New Roman","Liberation Serif",serif;
+  --sans:"Inter","Segoe UI","Helvetica Neue",Arial,"Liberation Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+
+/* ============ Stage: fixed 1600x900 design space, scaled to viewport ============ */
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;overflow:hidden;background:var(--bg)}
+#scene{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;
+  transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+/* when a detail drawer is open the scene retreats left (focus + context) */
+#stage.open #scene{transform:translate(0,132px) scale(.706)}
+#back,#front,#layer{position:absolute;left:0;top:0;width:1600px;height:900px;pointer-events:none}
+#layer>*{position:absolute}
+.node{pointer-events:auto;cursor:pointer;outline:none;transition:opacity .35s,box-shadow .3s,background .3s,border-color .3s}
+svg .node{pointer-events:all}
+.node:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.dim{opacity:.18!important}
+.lab{font-size:14px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);line-height:1.35}
+
+/* ============ Header ============ */
+#hdr{position:absolute;left:0;top:0;width:1600px;height:100px}
+.eyebrow{position:absolute;left:40px;top:20px;font-size:15px;letter-spacing:.04em;color:var(--mut);white-space:nowrap}
+.eyebrow b{color:var(--teal);letter-spacing:.2em;font-weight:700;margin-right:16px}
+#hdr h1{position:absolute;left:40px;top:42px;margin:0;font:400 30px/1.2 var(--serif);color:var(--petrol);white-space:nowrap;letter-spacing:-.005em}
+.focus{position:absolute;left:1000px;top:16px;width:560px}
+.focus .fl{font-size:14px;color:var(--mut);margin-bottom:5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.seg{display:flex;border:1px solid var(--petrol);border-radius:2px;overflow:hidden}
+.seg button{flex:1;white-space:nowrap;border:0;background:#fff;color:var(--petrol);font-size:15px;font-weight:600;padding:7px 4px;cursor:pointer;border-right:1px solid var(--line);transition:background .25s,color .25s}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:#E8F1F2}
+.seg button[aria-pressed=true]{background:var(--petrol);color:#fff}
+.fcap{margin-top:6px;font-size:14px;line-height:1.3;color:var(--mut);white-space:nowrap}
+
+/* ============ Platform ============ */
+#frame{left:380px;top:148px;width:590px;height:604px;background:#fff;border:1.5px solid var(--petrol);border-top:4px solid var(--petrol);border-radius:3px;
+  box-shadow:0 20px 40px -28px rgba(15,59,76,.5)}
+#frame:hover{box-shadow:0 22px 44px -26px rgba(15,59,76,.65)}
+#frame.sel{box-shadow:0 0 0 2px var(--teal),0 22px 44px -26px rgba(15,59,76,.65)}
+#ph{left:400px;top:158px;width:550px;height:52px;pointer-events:none}
+#ph .n{font-size:21px;font-weight:700;letter-spacing:.14em;color:var(--petrol)}
+#ph .s{font-size:15px;color:var(--mut);margin-top:3px}
+#ph .more{position:absolute;right:0;top:4px;font-size:14px;font-weight:600;color:var(--teal)}
+
+.cap{background:#fff;border:1px solid var(--line);border-top:3px solid var(--c);border-radius:2px;padding:14px 16px}
+.cap:hover{box-shadow:0 10px 22px -14px rgba(15,59,76,.55);border-color:var(--c)}
+.cap.sel{background:color-mix(in srgb,var(--c) 7%,#fff);box-shadow:0 0 0 1.5px var(--c)}
+.cap .hd{display:flex;gap:10px;align-items:flex-start;min-height:46px}
+.cap .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--c);color:#fff;font-weight:700;font-size:14px;line-height:26px;text-align:center}
+.cap h3{margin:0;font-size:17.5px;line-height:1.25;font-weight:650;color:var(--ink);padding-top:2px}
+.cap ul{list-style:none;margin:10px 0 0;padding:0}
+.cap li{font-size:14.5px;line-height:1.45;color:#3b434a;padding-left:14px;position:relative;white-space:nowrap}
+.cap li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;background:var(--c);opacity:.7}
+
+.fseg{border:1px solid;border-radius:2px;padding:9px 14px}
+.fseg b{display:block;font-size:16.5px;line-height:1.25}
+.fseg span{display:block;font-size:14.5px;line-height:1.35;color:#3b434a;margin-top:2px}
+#f1{border-color:var(--burg);background:color-mix(in srgb,var(--burg) 6%,#fff)}
+#f1 b{color:var(--burg)}
+#f1:hover,#f1.sel{box-shadow:0 0 0 1.5px var(--burg)}
+#f2{border-color:color-mix(in srgb,var(--petrol) 45%,#fff);background:color-mix(in srgb,var(--petrol) 4%,#fff)}
+#f2 b{color:var(--petrol)}
+#f2:hover{box-shadow:0 0 0 1.5px var(--petrol)}
+#fb{background:var(--petrol);color:#fff;font-size:14.5px;line-height:28px;padding:0 14px;letter-spacing:.02em;border-radius:2px;white-space:nowrap}
+
+/* ============ Actors ============ */
+.actor{display:flex;gap:14px;align-items:flex-start;padding:13px 0 0;border-bottom:1px solid var(--line);transition:opacity .35s}
+.actor .dot{flex:none;width:12px;height:12px;border-radius:50%;border:2px solid var(--teal);margin-top:5px;background:#fff}
+.actor h4{margin:0;font-size:17px;line-height:1.28;font-weight:600}
+.actor p{margin:3px 0 0;font-size:14.5px;color:var(--mut)}
+#afoot{font-size:15px;line-height:1.4;color:var(--dteal);font-weight:600}
+
+/* ============ Outcomes ============ */
+.out{display:flex;align-items:center;gap:9px;border:0;border-bottom:1px solid var(--line);background:none;font-size:14.5px;color:var(--ink);text-align:left;padding:0 4px;line-height:1.2}
+.out i{flex:none;width:8px;height:8px;background:var(--bronze)}
+.out:hover{background:color-mix(in srgb,var(--bronze) 9%,transparent);color:var(--petrol)}
+.out.sel{background:color-mix(in srgb,var(--bronze) 14%,transparent);font-weight:650;color:var(--petrol)}
+.onote{display:flex;align-items:center;font-size:14px;font-style:italic;color:var(--mut);padding-left:6px}
+
+/* ============ Economies / region (SVG) ============ */
+.eco circle.b{fill:#E6F3F1;stroke:var(--teal);stroke-width:1.4;transition:fill .3s,stroke-width .3s}
+.eco:hover circle.b{fill:#D2EAE7;stroke-width:2.2}
+.eco.sel circle.b{fill:#BFE2DE;stroke:var(--dteal);stroke-width:2.6}
+.eco text{font-size:14.5px;font-weight:650;fill:var(--petrol);text-anchor:middle;pointer-events:none}
+.eco.oth circle.b{fill:none;stroke:var(--mut);stroke-dasharray:4 4;stroke-width:1.2}
+.eco.oth text{fill:var(--mut);font-weight:600}
+#ring circle.c{fill:#fff;stroke:var(--teal);stroke-width:2}
+#ring .halo{fill:none;stroke:var(--teal);stroke-width:1.2;stroke-dasharray:2 6;transform-origin:675px 418px;animation:spin 40s linear infinite}
+#ring text{font-size:14.5px;font-weight:700;fill:var(--petrol);text-anchor:middle;pointer-events:none}
+#ring:hover circle.c,#ring.sel circle.c{fill:#E6F3F1}
+@keyframes spin{to{transform:rotate(360deg)}}
+#reg rect.bg{fill:color-mix(in srgb,var(--bronze) 6%,#fff);stroke:color-mix(in srgb,var(--bronze) 55%,#fff);stroke-width:1.2;transition:fill .3s}
+#reg:hover rect.bg,#reg.sel rect.bg{fill:color-mix(in srgb,var(--bronze) 14%,#fff)}
+#reg text{font-size:14.5px;fill:#3b434a;text-anchor:middle;pointer-events:none}
+#reg text.rl{font-size:14px;font-weight:700;letter-spacing:.09em;fill:var(--bronze);text-anchor:start}
+
+/* ============ Links ============ */
+.link{fill:none;stroke:var(--dteal);stroke-width:1.6;opacity:.7;transition:opacity .35s,stroke-width .3s}
+.link.thin{stroke:var(--teal);stroke-width:1;opacity:.45}
+.link.fan{stroke:var(--teal);stroke-width:1.2;stroke-dasharray:2 4;opacity:.8}
+.link.burg{stroke:var(--burg);stroke-width:1.8}
+.link.bz{stroke:var(--bronze)}
+.link.on{opacity:1;stroke-width:2.4;stroke-dasharray:7 5;animation:flow 1.1s linear infinite}
+.link.thin.on{stroke-width:1.8}
+.f-trans .link.fan,.f-trans .link.bus{stroke-dasharray:7 5;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-12}}
+
+/* ============ Transformation strip ============ */
+#strip{left:40px;top:764px;width:1520px;height:66px;transition:opacity .35s}
+#strip .row{display:flex;align-items:center;height:31px;gap:0;font-size:15px}
+#strip .row+.row{margin-top:4px}
+#strip .rl{flex:none;width:182px;font-size:14px;font-weight:700;padding-left:12px;white-space:nowrap}
+#strip .st{white-space:nowrap}
+#strip .ar{flex:none;width:28px;text-align:center}
+#strip .r1{color:#7d858b}
+#strip .r1 .ar{color:#b3b8bc}
+#strip .r2{background:color-mix(in srgb,var(--teal) 9%,#fff);border-left:3px solid var(--teal);color:var(--petrol);font-weight:600}
+#strip .r2 .rl{color:var(--dteal);padding-left:9px;width:179px}
+#strip .r2 .ar{color:var(--teal)}
+#strip .r2 .st.k{background:var(--petrol);color:#fff;padding:3px 10px;border-radius:2px}
+
+/* ============ Decision strip ============ */
+.dec{left:40px;top:842px;width:1520px;height:50px;display:flex;align-items:stretch;background:#fff;border:1px solid var(--line);border-left:0;pointer-events:auto}
+.dec .tag{flex:none;width:118px;background:var(--burg);color:#fff;font-size:14px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;justify-content:center}
+.dec p{margin:0;flex:1;padding:0 20px;font-size:15.5px;line-height:1.35;display:flex;align-items:center;color:var(--ink)}
+.dec button{flex:none;width:262px;border:0;border-left:1px solid var(--line);background:#fff;color:var(--burg);font-size:15px;font-weight:700;cursor:pointer;transition:background .25s,color .25s}
+.dec button:hover{background:var(--burg);color:#fff}
+
+/* ============ Drawer ============ */
+#drawer{position:absolute;right:0;top:0;width:470px;height:900px;background:#fff;border-left:1px solid var(--line);box-shadow:-24px 0 40px -30px rgba(15,59,76,.45);
+  transform:translateX(100%);transition:transform .6s cubic-bezier(.2,.7,.2,1);display:flex;flex-direction:column;z-index:5}
+#stage.open #drawer{transform:none}
+#dclose,#mclose{position:absolute;right:14px;top:12px;width:36px;height:36px;border:1px solid var(--line);background:#fff;font-size:22px;line-height:1;color:var(--mut);cursor:pointer;border-radius:2px}
+#dclose:hover,#mclose:hover{background:var(--petrol);color:#fff;border-color:var(--petrol)}
+.dh{padding:26px 64px 18px 28px;border-bottom:1px solid var(--line);flex:none}
+.kick{font-size:14px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+.dh h2,.mh h2{margin:6px 0 0;font:400 26px/1.2 var(--serif);color:var(--petrol)}
+.dh .lead,.mh .lead{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:#3b434a}
+.db{flex:1;overflow-y:auto;padding:4px 28px 36px;scrollbar-width:thin}
+.db section{margin-top:22px}
+.db h5,.mb h5{margin:0 0 8px;font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--dteal);font-weight:700}
+.db p,.mb p{margin:0;font-size:15.5px;line-height:1.55;color:#2f363b}
+.db ul,.mb ul{margin:0;padding:0;list-style:none}
+.db li,.mb li{font-size:15.5px;line-height:1.5;color:#2f363b;padding:6px 0 6px 18px;position:relative;border-bottom:1px solid #EEEBE4}
+.db li::before,.mb li::before{content:"";position:absolute;left:0;top:14px;width:7px;height:7px;background:var(--teal)}
+.tg{display:inline-block;margin-left:8px;font-size:14px;font-weight:600;padding:0 7px;border:1px solid;border-radius:2px;line-height:1.5;white-space:nowrap;vertical-align:1px}
+.t-ex{color:#fff;background:var(--petrol);border-color:var(--petrol)}
+.t-pr{color:var(--dteal);border-color:var(--dteal)}
+.t-po{color:var(--bronze);border-color:var(--bronze)}
+.t-ob{color:var(--burg);border-color:var(--burg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:14.5px;padding:3px 10px;border:1px solid var(--line);background:#FAF8F4;border-radius:2px;color:#2f363b}
+.chip[data-go]{cursor:pointer;border-color:var(--teal);color:var(--dteal);font-weight:600}
+.chip[data-go]:hover{background:var(--teal);color:#fff}
+.note{margin-top:22px;border-left:3px solid var(--bronze);background:color-mix(in srgb,var(--bronze) 8%,#fff);padding:10px 14px;font-size:14.5px;line-height:1.5;color:#3b434a}
+.steps{counter-reset:s;list-style:none;margin:0;padding:0}
+.steps li{counter-increment:s;padding:9px 0 9px 42px;position:relative;border-bottom:1px solid #EEEBE4}
+.steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;font-weight:700;font-size:14px;line-height:26px;text-align:center}
+.steps li:last-child::before{background:var(--burg)}
+.steps b{display:block;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--dteal);margin-bottom:2px}
+.steps li:last-child b{color:var(--burg)}
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px}
+.flow span.s{font-size:14.5px;font-weight:600;padding:4px 10px;background:color-mix(in srgb,var(--teal) 12%,#fff);color:var(--petrol);border-radius:2px}
+.flow span.a{color:var(--teal);font-weight:700}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px}
+table.cmp th{font-size:14px;text-align:left;padding:6px 8px;color:var(--mut);font-weight:700;border-bottom:2px solid var(--petrol)}
+table.cmp th:last-child{color:var(--teal)}
+table.cmp td{padding:7px 8px;vertical-align:top;border-bottom:1px solid #EEEBE4;line-height:1.4}
+table.cmp td:first-child{font-weight:700;color:var(--petrol);width:20%}
+table.cmp td:nth-child(2){color:var(--mut)}
+table.cmp td:last-child{font-weight:600}
+
+/* ============ Modal (decision) ============ */
+#modal{position:absolute;inset:0;background:rgba(15,59,76,.38);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s;z-index:9}
+#modal.show{opacity:1;pointer-events:auto}
+#mcard{position:relative;width:1040px;height:780px;background:#fff;border-top:5px solid var(--burg);display:flex;flex-direction:column;transform:translateY(16px);transition:transform .45s cubic-bezier(.2,.7,.2,1);box-shadow:0 30px 70px -30px rgba(0,0,0,.5)}
+#modal.show #mcard{transform:none}
+.mh{padding:28px 70px 18px 40px;border-bottom:1px solid var(--line)}
+.mh .formal{margin:14px 0 0;padding:14px 18px;border-left:4px solid var(--burg);background:color-mix(in srgb,var(--burg) 6%,#fff);font:400 19px/1.45 var(--serif);color:var(--ink)}
+.mb{flex:1;overflow-y:auto;padding:8px 40px 30px;display:grid;grid-template-columns:1fr 1fr;gap:0 40px;align-content:start;scrollbar-width:thin}
+.mb section{margin-top:20px}
+.mb .en{grid-column:1/-1;font-size:14.5px;color:var(--mut);margin-top:20px;font-style:italic;line-height:1.5}
+.mb li::before{background:var(--burg)}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div id="scene">
+
+  <!-- Header -->
+  <div id="hdr">
+    <div class="eyebrow"><b>ENTERPRISE UZBEKISTAN</b>Regional Platform for Emerging Technology Economies</div>
+    <h1>Региональная платформа развития новых технологических экономик</h1>
+    <div class="focus">
+      <div class="fl">Фокус презентации</div>
+      <div class="seg" role="group" aria-label="Фокус презентации">
+        <button data-focus="inst" aria-pressed="false">Институты</button>
+        <button data-focus="trans" aria-pressed="false">Трансформация</button>
+        <button data-focus="reg" aria-pressed="false">Регион</button>
+      </div>
+      <div class="fcap" id="fcap"></div>
+    </div>
+  </div>
+
+  <svg id="back" viewBox="0 0 1600 900" aria-hidden="true"></svg>
+
+  <div id="layer">
+    <!-- Actors -->
+    <div class="lab" style="left:40px;top:148px;width:280px">Глобальные технологические возможности</div>
+    <div class="node actor" data-id="a1" style="left:40px;top:200px;width:280px;height:98px"><i class="dot"></i><div><h4>Международные технологические компании</h4><p>технологии, продукты, опыт</p></div></div>
+    <div class="node actor" data-id="a2" style="left:40px;top:298px;width:280px;height:98px"><i class="dot"></i><div><h4>Стартапы и scale-ups</h4><p>новые бизнес-модели</p></div></div>
+    <div class="node actor" data-id="a3" style="left:40px;top:396px;width:280px;height:98px"><i class="dot"></i><div><h4>Университеты и исследовательские центры</h4><p>знания, лаборатории, таланты</p></div></div>
+    <div class="node actor" data-id="a4" style="left:40px;top:494px;width:280px;height:98px"><i class="dot"></i><div><h4>Промышленные партнёры</h4><p>реальный спрос и данные</p></div></div>
+    <div class="node actor" data-id="a5" style="left:40px;top:592px;width:280px;height:98px"><i class="dot"></i><div><h4>Инвесторы и фонды</h4><p>венчурный и стратегический капитал</p></div></div>
+    <div id="afoot" style="left:40px;top:704px;width:280px">Привлекаем технологии, капитал, экспертизу и промышленный спрос</div>
+
+    <!-- Platform -->
+    <div class="node" id="frame" data-id="p" tabindex="0" role="button" aria-label="Платформа Enterprise Uzbekistan"></div>
+    <div id="ph" data-id="ph"><div class="n">ENTERPRISE UZBEKISTAN</div><div class="s">Единая институциональная платформа и координатор</div><div class="more">Подробнее ›</div></div>
+
+    <div class="node cap" data-id="c2" tabindex="0" role="button" style="left:400px;top:226px;width:250px;height:168px;--c:var(--c2)">
+      <div class="hd"><span class="num">2</span><h3>Развитие экосистемы</h3></div>
+      <ul><li>Компании и стартапы</li><li>Университеты и R&amp;D</li><li>Инвесторы и индустрия</li></ul></div>
+    <div class="node cap" data-id="c3" tabindex="0" role="button" style="left:700px;top:226px;width:250px;height:168px;--c:var(--c3)">
+      <div class="hd"><span class="num">3</span><h3>Коммерциализация технологий</h3></div>
+      <ul><li>Полигоны и лаборатории</li><li>Коммерческие пилоты</li><li>Выход на рынок</li></ul></div>
+    <div class="node cap" data-id="c4" tabindex="0" role="button" style="left:700px;top:442px;width:250px;height:168px;--c:var(--c4)">
+      <div class="hd"><span class="num">4</span><h3>Региональные партнёрства</h3></div>
+      <ul><li>Зарубежные регуляторы</li><li>Совместные инициативы</li><li>Рост в регионе</li></ul></div>
+    <div class="node cap" data-id="c1" tabindex="0" role="button" style="left:400px;top:442px;width:250px;height:168px;--c:var(--c1)">
+      <div class="hd"><span class="num">1</span><h3>Регуляторные инновации</h3></div>
+      <ul><li>Regulatory Sandbox</li><li>Оценка регулирования</li><li>Надзор по уровню риска</li></ul></div>
+
+    <div class="node fseg" id="f1" data-id="f1" tabindex="0" role="button" style="left:400px;top:634px;width:250px;height:76px"><b>Regulatory Sandbox</b><span>Контролируемый эксперимент в рамках правил</span></div>
+    <div class="node fseg" id="f2" data-id="f2" tabindex="0" role="button" style="left:700px;top:634px;width:250px;height:76px"><b>Отраслевые регуляторы</b><span>Сохраняют компетенции; координация по протоколам</span></div>
+    <div class="node" id="fb" data-id="fb" tabindex="0" role="button" style="left:400px;top:714px;width:550px;height:28px">Особый правовой режим · в пределах полномочий платформы</div>
+
+    <!-- Outcomes -->
+    <div class="lab" style="left:1010px;top:574px;width:550px">Потенциальные экономические эффекты</div>
+    <button class="node out" data-id="o1" style="left:1010px;top:600px;width:265px;height:37px"><i></i>Новые отрасли экономики</button>
+    <button class="node out" data-id="o2" style="left:1010px;top:637px;width:265px;height:37px"><i></i>Иностранные инвестиции</button>
+    <button class="node out" data-id="o3" style="left:1010px;top:674px;width:265px;height:37px"><i></i>Международные R&amp;D-центры</button>
+    <button class="node out" data-id="o4" style="left:1010px;top:711px;width:265px;height:37px"><i></i>Интеллектуальная собственность</button>
+    <button class="node out" data-id="o5" style="left:1295px;top:600px;width:265px;height:37px"><i></i>Технологический экспорт</button>
+    <button class="node out" data-id="o6" style="left:1295px;top:637px;width:265px;height:37px"><i></i>Квалифицированная занятость</button>
+    <button class="node out" data-id="o7" style="left:1295px;top:674px;width:265px;height:37px"><i></i>Региональное лидерство</button>
+    <div class="onote" style="left:1295px;top:711px;width:265px;height:37px">Стратегические цели, не прогноз</div>
+
+    <!-- Economic shift -->
+    <div id="strip" data-id="strip">
+      <div class="row r1"><span class="rl">Традиционная модель</span>
+        <span class="st">Привлечь ИТ-компанию</span><span class="ar">→</span><span class="st">Зарегистрировать</span><span class="ar">→</span><span class="st">Предоставить льготы</span><span class="ar">→</span><span class="st">Считать резидентов и рабочие места</span></div>
+      <div class="row r2"><span class="rl">Предлагаемая модель</span>
+        <span class="st">Глобальные технологии и капитал</span><span class="ar">→</span><span class="st">Институты и коммерческая инфраструктура</span><span class="ar">→</span><span class="st">Новые бизнес-модели</span><span class="ar">→</span><span class="st k">Новые рынки</span><span class="ar">→</span><span class="st">Коммерциализация и региональный рост</span></div>
+    </div>
+
+    <!-- Decision -->
+    <div class="dec"><div class="tag">РЕШЕНИЕ</div>
+      <p>Определить Enterprise Uzbekistan региональной платформой развития новых технологических экономик на основе интегрированной институциональной модели и режима регуляторного экспериментирования.</p>
+      <button id="decbtn">Формулировка решения ›</button></div>
+  </div>
+
+  <svg id="front" viewBox="0 0 1600 900"></svg>
+ </div>
+
+ <aside id="drawer" aria-live="polite"><button id="dclose" aria-label="Закрыть">×</button><div id="dcontent" style="display:flex;flex-direction:column;flex:1;min-height:0"></div></aside>
+
+ <div id="modal"><div id="mcard" role="dialog" aria-modal="true"><button id="mclose" aria-label="Закрыть">×</button><div id="mcontent" style="display:flex;flex-direction:column;flex:1;min-height:0"></div></div></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const stage=$('#stage');
+
+/* ---------- Fit 1600x900 design space to any viewport (no page scroll) ---------- */
+function fit(){
+  const s=Math.min(innerWidth/1600, innerHeight/900);
+  stage.style.transform=`translate(${(innerWidth-1600*s)/2}px,${(innerHeight-900*s)/2}px) scale(${s})`;
+}
+addEventListener('resize',fit); fit();
+
+/* ---------- Content model ---------- */
+const TAG={ex:['Действующая база','t-ex'],pr:['Предлагается','t-pr'],po:['Потенциальное партнёрство','t-po'],ob:['Ожидаемый эффект','t-ob']};
+const STEP=['Существующая проблема','Вмешательство платформы','Пример инициативы','Участники','Коммерческая модель','Экономический результат','Регуляторные гарантии'];
+const ECO_NOTE='Пример иллюстративен: конкретные инициативы требуют согласования с профильными регуляторами и партнёрами. Платформа не заменяет отраслевых регуляторов и не гарантирует результат.';
+
+const D={};
+
+D.p={color:'var(--teal)',short:'Платформа',kicker:'Институциональная платформа',title:'Enterprise Uzbekistan как региональная платформа',
+ lead:'Единая институциональная среда, в которой международные технологические возможности соединяются с правовыми механизмами, инфраструктурой и партнёрствами, чтобы вокруг технологий формировались новые рынки.',
+ rel:['c1','c2','c3','c4','ring','f1','f2','fb','l12','l23','l34','l41','lf1'],
+ blocks:[
+  {t:'text',h:'Стратегическая функция',p:'Enterprise Uzbekistan выступает потенциальным координатором платформы и юрисдикционным «обеспечителем» в пределах предоставленных ему полномочий. Задача — не регистрировать как можно больше компаний, а создавать условия, при которых вокруг технологий появляются правовая определённость, спрос, участники и путь к коммерциализации.'},
+  {t:'list',id:'sb',h:'Роль Regulatory Sandbox',items:[
+    ['Правовой механизм контролируемого эксперимента: технологии и бизнес-модели тестируются в установленных рамках — с ограничениями по масштабу, срокам и рискам.','ex'],
+    'Это один из ключевых механизмов, а не цель платформы и не режим неограниченных экспериментов: надзор остаётся риск-ориентированным.',
+    'Результаты тестов становятся доказательной базой для решений профильных регуляторов и для развития регулирования.']},
+  {t:'cmp',h:'Чем платформа отличается от обычной песочницы',rows:[
+    ['Цель','Проверить продукт одной компании','Сформировать рынок вокруг технологии'],
+    ['Участники','Отдельный заявитель','Экосистема: компании, наука, индустрия, капитал'],
+    ['Результат','Допуск или отказ','Рынки, ИС, инвестиции, экспорт'],
+    ['Горизонт','Проект','Постоянные институциональные возможности'],
+    ['Масштаб','Национальный','Региональное расширение через партнёрства']]},
+  {t:'list',h:'Модель институциональной координации',items:[
+    '<b>Governing Council</b> — определяет стратегические приоритеты платформы и решает о запуске направлений.',
+    '<b>Enterprise Uzbekistan</b> — единая точка координации: отбор участников, организация экспериментов, сопровождение пилотов.',
+    '<b>Отраслевые регуляторы</b> — сохраняют свои компетенции и принимают решения в своей сфере; взаимодействие по согласованным протоколам.',
+    '<b>Международные партнёры</b> — компании, университеты, инвесторы, зарубежные регуляторы — участвуют на основе соглашений.']},
+  {t:'list',h:'Необходимые условия реализации',items:[
+    ['Чёткое определение объёма полномочий и границ правового режима в рамках действующего законодательства','pr'],
+    ['Протоколы взаимодействия с отраслевыми регуляторами по каждому направлению','pr'],
+    ['Постоянная операционная команда и прозрачные критерии отбора участников','pr'],
+    ['Риск-ориентированные правила экспериментов и защита интересов граждан','pr'],
+    ['Меморандумы с зарубежными регуляторами и региональными партнёрами','po'],
+    ['Показатели успеха — сформированные рынки, а не число резидентов','pr']]},
+  {t:'list',h:'Статус элементов модели',items:[
+    ['Особый правовой режим и Regulatory Sandbox','ex'],
+    ['Протоколы, полигоны, программы привлечения партнёров','pr'],
+    ['Партнёрства с зарубежными регуляторами и региональными участниками','po'],
+    ['Новые рынки, инвестиции, экспорт, рабочие места','ob']]},
+  {t:'note',p:'Модель не создаёт новых полномочий и привилегий: объём прав определяется действующим законодательством. Отраслевые решения остаются за профильными регуляторами. Автоматического регионального признания разрешений не предполагается.'}
+ ]};
+
+D.c1={color:'var(--c1)',short:'1 · Регуляторные инновации',kicker:'Механизм 1 · постоянная возможность платформы',title:'Регуляторные инновации',
+ lead:'Правовая определённость для новых технологий и бизнес-моделей — без снижения защиты граждан и рынка.',
+ rel:['c1','c2','c3','c4','ring','f1','f2','fb','l12','l41','lf1','a1','a2','a4','e1','e2','e3','e5','e7','o1','o2'],
+ blocks:[
+  {t:'text',h:'Назначение',p:'Превратить регуляторную неопределённость вокруг новых технологий в понятные правила, проверенные на практике, и дать регуляторам доказательную базу для решений.'},
+  {t:'list',h:'Функции',items:['Контролируемые эксперименты в Regulatory Sandbox','Оценка регуляторного воздействия по итогам тестов','Риск-ориентированный надзор за участниками','Взаимодействие с профильными регуляторами','Выработка новых регуляторных подходов (данные, ИИ-агенты, цифровое доверие)']},
+  {t:'chips',h:'Ключевые стейкхолдеры',items:['Enterprise Uzbekistan','Отраслевые регуляторы','Участники песочницы','Органы нормотворчества','Отраслевые ассоциации','Зарубежные регуляторы (диалог)']},
+  {t:'list',h:'Инструменты реализации',items:[['Regulatory Sandbox','ex'],['Протоколы взаимодействия с отраслевыми регуляторами','pr'],['Методика оценки рисков и результатов эксперимента','pr'],['Рекомендации по развитию регулирования','ob']]},
+  {t:'text',h:'Вклад в формирование рынков',p:'Снижает барьер входа для первых внедрений: участники рынка понимают границы допустимого, а инвесторы видят предсказуемую среду. Без этого механизма остальные три не дают устойчивого эффекта.'},
+  {t:'list',h:'Взаимосвязи',items:['→ Экосистема: правовая определённость привлекает участников','← Партнёрства: опыт зарубежных регуляторов','↔ Коммерциализация: регуляторная валидация пилотов']}
+ ]};
+
+D.c2={color:'var(--c2)',short:'2 · Развитие экосистемы',kicker:'Механизм 2 · постоянная возможность платформы',title:'Развитие технологической экосистемы',
+ lead:'Объединение глобальных компетенций, талантов, капитала и промышленного спроса в рабочие сети.',
+ rel:['c1','c2','c3','ring','l12','l23','a1','a2','a3','a4','a5','e1','e2','e4','e6','o2','o3','o6'],
+ blocks:[
+  {t:'text',h:'Назначение',p:'Собрать на одной площадке всё, без чего рынок не возникает: предложение технологий, исследовательскую базу, заказчиков и капитал.'},
+  {t:'list',h:'Функции',items:['Привлечение международных технологических компаний, стартапов и scale-ups','Партнёрства с университетами и исследовательскими институтами','Доступ к венчурному и стратегическому капиталу','Консорциумы и сети совместных инноваций с промышленными партнёрами']},
+  {t:'chips',h:'Ключевые стейкхолдеры',items:['Технологические компании','Стартапы и scale-ups','Университеты и НИИ','Промышленные предприятия','Венчурные и стратегические инвесторы']},
+  {t:'list',h:'Инструменты реализации',items:[['Программы привлечения технологических партнёров под приоритетные рынки','pr'],['Консорциумы «компания — университет — промышленность»','pr'],['Платформы соинвестирования','po'],['Академические соглашения и совместные программы','po']]},
+  {t:'text',h:'Вклад в формирование рынков',p:'Создаёт критическую массу участников: технологии находят заказчиков, а заказчики — проверенных поставщиков. Именно сети, а не отдельные компании, превращают эксперименты в рынок.'},
+  {t:'list',h:'Взаимосвязи',items:['← Регуляторные инновации: определённость правил','→ Коммерциализация: участники и спрос для пилотов']}
+ ]};
+
+D.c3={color:'var(--c3)',short:'3 · Коммерциализация технологий',kicker:'Механизм 3 · постоянная возможность платформы',title:'Тестирование и коммерциализация технологий',
+ lead:'Путь от лабораторной проверки к первым коммерческим контрактам и подготовке выхода на рынок.',
+ rel:['c1','c2','c3','c4','ring','l23','l34','a1','a2','a4','e1','e2','e4','e5','e6','o1','o4','o5'],
+ blocks:[
+  {t:'text',h:'Назначение',p:'Довести технологию до подтверждённого продукта: проверить в реальных условиях, получить первых заказчиков и подготовить масштабирование.'},
+  {t:'list',h:'Функции',items:['Экспериментальные среды и промышленные полигоны','Исследовательские лаборатории','Коммерческие пилоты с корпоративными заказчиками','Валидация технологий и подготовка к выходу на рынок']},
+  {t:'chips',h:'Ключевые стейкхолдеры',items:['Промышленные предприятия-заказчики','Лаборатории и университеты','Облачные и инфраструктурные провайдеры','Разработчики технологий','Профильные регуляторы']},
+  {t:'list',h:'Инструменты реализации',items:[['Сеть промышленных полигонов (testbeds)','pr'],['Совместные исследовательские лаборатории','po'],['Пилотные контракты с корпоративными заказчиками','pr'],['Протоколы валидации и критерии готовности к рынку','pr']]},
+  {t:'text',h:'Вклад в формирование рынков',p:'Превращает прототипы в продукты и первую выручку — формирует платёжеспособный спрос и референс-кейсы, которые затем масштабируются через региональные партнёрства.'},
+  {t:'list',h:'Взаимосвязи',items:['← Экосистема: участники и заказчики','↔ Регуляторные инновации: валидация в безопасных рамках','→ Региональные партнёрства: проверенные решения для масштабирования']}
+ ]};
+
+D.c4={color:'var(--c4)',short:'4 · Региональные партнёрства',kicker:'Механизм 4 · постоянная возможность платформы',title:'Региональные инновационные партнёрства',
+ lead:'Расширение рынков за пределы Узбекистана через партнёрства, а не через автоматическое распространение полномочий.',
+ rel:['c1','c3','c4','ring','l34','l41','r','flow','la','a1','a3','a5','e1','e3','e6','e7','o2','o3','o5','o7'],
+ blocks:[
+  {t:'text',h:'Назначение',p:'Увеличить масштаб рынков, сформированных на платформе: обмениваться опытом с зарубежными регуляторами, запускать совместные инициативы и выводить решения в соседние юрисдикции.'},
+  {t:'list',h:'Функции',items:['Региональные технологические партнёрства','Сотрудничество с зарубежными регуляторами','Совместные инновационные и исследовательские инициативы','Трансграничная коммерциализация технологий','Механизмы регионального масштабирования']},
+  {t:'chips',h:'Ключевые стейкхолдеры',items:['Регуляторы стран региона','Региональные компании и инвесторы','Международные организации развития','Исследовательские сети','Enterprise Uzbekistan']},
+  {t:'list',h:'Инструменты реализации',items:[['Меморандумы о сотрудничестве с зарубежными регуляторами','po'],['Совместные пилоты с партнёрами региона','po'],['Обмен результатами тестов и методиками оценки','po'],['Региональные площадки для презентации решений','pr']]},
+  {t:'text',h:'Вклад в формирование рынков',p:'Превращает национальные кейсы в региональные рынки: решение, проверенное в Узбекистане, получает путь к клиентам и регуляторам соседних стран.'},
+  {t:'note',p:'Автоматического признания разрешений и результатов тестов нет. Выход на рынок назначения требует соблюдения применимых правил этой юрисдикции и взаимной договорённости сторон.'}
+ ]};
+
+const ECO={
+ e1:{name:'Data Economy',ru:'Экономика данных',lead:'Как фрагментированные промышленные данные становятся рынком данных-услуг.',
+  flow:['Данные закрыты','Правовой доступ','Безопасное тестирование','Рынок data-услуг'],caps:'c1,c2,c3',a:'a1,a2,a4,a5',o:'o1,o4,o5',
+  steps:['Ценные промышленные данные фрагментированы и закрыты внутри организаций: коммерческое использование ограничено недоверием и отсутствием правил.','Законные механизмы доступа к данным, защищённая среда совместной работы, контролируемое тестирование в Sandbox, подбор партнёров.','<b>Central Asia Industrial Data Exchange</b> — региональная площадка обмена промышленными данными.','Владельцы промышленных данных, AI-компании, облачные провайдеры, инвесторы, корпоративные заказчики.','Продукты на основе данных, лицензируемый доступ, аналитические сервисы.','Формирование регионального рынка промышленных data-услуг.','Конфиденциальность, законная обработка, защита персональных данных, кибербезопасность.']},
+ e2:{name:'Agentic AI',ru:'Экономика ИИ-агентов',lead:'Как ИИ-агентов разрабатывают, проверяют, контролируют и внедряют в реальные бизнес-процессы.',
+  flow:['Разработка','Тестирование в Sandbox','Контроль и аудит','Коммерческое внедрение'],caps:'c1,c3',a:'a1,a2,a4',o:'o1,o5,o6',
+  steps:['ИИ-агенты способны выполнять бизнес-процессы, но компании не готовы доверять им операции без понятных границ полномочий, ответственности и аудита.','Тестирование агентов в ограниченных реальных процессах, стандарты контроля (границы действий, журналирование, человек в контуре), пилоты с корпоративными заказчиками.','<b>Agent Deployment Testbed</b> — полигон внедрения агентов в клиентской поддержке, логистике и документообороте.','Разработчики агентных платформ, корпоративные заказчики, провайдеры моделей и облака, отраслевые регуляторы, аудиторы и страховщики.','Оплата за результат, подписка, интеграционные услуги, аудит и страхование агентных систем.','Рынок управляемых агентных сервисов и практик внедрения, пригодных для региона.','Человеческий контроль, ограничение прав доступа, журнал действий, чёткая ответственность, защита данных.']},
+ e3:{name:'Digital Trust',ru:'Экономика цифрового доверия',lead:'Как цифровая идентификация и верифицируемые credentials создают трансграничные сервисы.',
+  flow:['Идентификация','Верифицируемые credentials','Профили доверия','Трансграничные сервисы'],caps:'c1,c4',a:'a1,a2,a5',o:'o1,o2,o5',
+  steps:['Трансграничные цифровые услуги упираются в проверку личности, полномочий и подлинности документов: юрисдикции не доверяют данным друг друга.','Тестирование цифровой идентификации и верифицируемых credentials, технические и правовые профили доверия, диалог с зарубежными регуляторами и провайдерами.','<b>Cross-border Verified Credentials Pilot</b> — проверка компаний, квалификаций и поставщиков между юрисдикциями.','Провайдеры идентификации и trust-услуг, банки и финтех, университеты, торговые операторы, государственные эмитенты, зарубежные партнёры.','Плата за верификацию, API-сервисы доверия, корпоративные подписки, встроенный KYC.','Рынок трансграничных сервисов доверия — основа цифровой торговли, финансов и мобильности специалистов.','Минимизация данных, согласие субъекта, защита приватности, кибербезопасность; взаимное признание — только по соглашениям.']},
+ e4:{name:'Industrial Intelligence',ru:'Промышленный интеллект',lead:'Как ИИ-аналитика проходит путь от пилота на предприятии до рынка отраслевых решений.',
+  flow:['Данные производства','Полигон на предприятии','Валидация эффекта','Отраслевое решение'],caps:'c2,c3',a:'a1,a3,a4,a5',o:'o1,o3,o6',
+  steps:['Предприятия располагают данными оборудования и процессов, но не внедряют ИИ-аналитику из-за рисков для производства и отсутствия проверенных решений.','Промышленные полигоны на реальных предприятиях, валидация решений, совместные пилоты с поставщиками ИИ и IoT.','<b>Industrial AI Testbed Network</b> — сеть полигонов предиктивного обслуживания и оптимизации (энергетика, добыча, текстиль).','Промышленные предприятия, AI/IoT-вендоры, системные интеграторы, университеты, инвесторы.','Оплата за результат (экономия), SaaS-подписки, услуги внедрения, лицензирование отраслевых моделей.','Рынок промышленных ИИ-решений; кейсы масштабируются на рынки с похожей отраслевой структурой.','Промышленная безопасность, ответственность за решения, кибербезопасность АСУ ТП, защита коммерческой тайны.']},
+ e5:{name:'Autonomous Systems',ru:'Автономные системы',lead:'Как беспилотные и робототехнические системы получают безопасные условия испытаний.',
+  flow:['Концепт','Зонированные испытания','Допуск регулятора','Коммерческая эксплуатация'],caps:'c1,c3',a:'a1,a3,a4',o:'o1,o3,o6',
+  steps:['Автономным системам нужны реальные условия испытаний, но допуски и ответственность не определены.','Зонированные испытательные площадки с ограничениями по месту, времени и рискам; работа с профильными регуляторами над условиями допуска.','<b>Autonomous Systems Test Corridors</b> — испытательные коридоры для логистики, сельского хозяйства, инспекции инфраструктуры.','Разработчики автономных систем, логистические и агропромышленные операторы, регуляторы, страховщики, исследовательские центры.','Услуги автономной логистики и мониторинга, лизинг и обслуживание, данные испытаний как сервис.','Рынок автономных операций и испытательных услуг.','Безопасность людей, ограничение зон и режимов, страхование ответственности; решения о допусках принимают профильные регуляторы.']},
+ e6:{name:'Digital IP',ru:'Цифровая интеллектуальная собственность',lead:'Как алгоритмы, модели и данные становятся оборачиваемыми активами.',
+  flow:['Создание ИС','Закрепление прав','Лицензирование','Сделки и инвестиции'],caps:'c2,c3,c4',a:'a2,a3,a5',o:'o3,o4,o5',
+  steps:['Цифровые активы — алгоритмы, модели, данные, контент — трудно оценить, передать и лицензировать; инвесторы не видят прав.','Тестирование механизмов регистрации, лицензирования и учёта прав, партнёрство с патентными и правовыми институтами, R&D-кооперация с закреплением ИС.','<b>Digital IP Licensing Hub</b> — центр лицензирования и сделок с цифровой ИС.','Университеты и лаборатории, разработчики, патентные поверенные, инвесторы, корпорации-лицензиаты, органы ИС.','Лицензионные платежи, роялти, сделки по передаче технологий, финансирование под обеспечение правами ИС (потенциально).','Рынок лицензирования цифровой ИС, созданной и коммерциализированной в Узбекистане.','Чёткое закрепление прав, соблюдение национального и международного права ИС, экспортный контроль, защита добросовестных участников.']},
+ e7:{name:'RegTech',ru:'Регуляторные технологии',lead:'Как технологии надзора и комплаенса становятся экспортируемым продуктом.',
+  flow:['Ручной контроль','Совместные тесты с регулятором','Машиночитаемые правила','Экспорт решений'],caps:'c1,c4',a:'a1,a2,a5',o:'o1,o5,o7',
+  steps:['Регуляторы и компании тратят ресурсы на ручной контроль и отчётность; инновационные модели трудно проверять традиционными инструментами.','Совместное с регуляторами тестирование автоматизированной отчётности, машиночитаемых правил и инструментов надзора.','<b>RegTech Supervisory Lab</b> — лаборатория надзорных технологий.','Регуляторы, финансовые и телеком-операторы, RegTech-разработчики, консультанты, зарубежные регуляторы.','SaaS для комплаенса, услуги мониторинга, экспорт регуляторных решений в другие юрисдикции.','Рынок регуляторных технологий; Узбекистан — источник проверенных регуляторных решений для региона.','Независимость регуляторов, аудит алгоритмов, прозрачность решений, защита данных.']}
+};
+const ELINKS=[['e1','e2'],['e1','e6'],['e1','e3'],['e2','e4'],['e2','e6'],['e3','e6'],['e3','e7'],['e4','e5'],['e4','e6'],['e5','e7'],['e6','e7']];
+const nb=id=>ELINKS.filter(l=>l.includes(id)).map(l=>l[0]===id?l[1]:l[0]);
+Object.keys(ECO).forEach(id=>{
+  const e=ECO[id];
+  D[id]={color:'var(--teal)',short:e.name,kicker:'Формирующийся рынок · пример формирования',title:e.name,sub:e.ru,lead:e.lead,
+    rel:[id,...nb(id),...e.caps.split(','),...e.a.split(','),...e.o.split(','),'ring','flow'],
+    blocks:[{t:'flow',h:'Путь рынка',items:e.flow},{t:'steps',items:e.steps,lab:true},{t:'note',p:ECO_NOTE}]};
+});
+D.e8={color:'var(--mut)',short:'Другие рынки',kicker:'Формирующиеся рынки',title:'Другие технологические экономики',
+ lead:'Перечень не закрыт: платформа не делится на независимые песочницы и не ограничена названными рынками.',
+ rel:['e8','c1','c2','c3','ring','flow'],
+ blocks:[{t:'list',h:'Критерии включения нового направления',items:['Есть технология и международные участники, готовые к совместной работе','Существует реальный спрос промышленности или государства','Возможна правовая определённость в рамках действующих полномочий и при участии профильных регуляторов','Просматривается модель коммерциализации и путь на региональный рынок']},
+  {t:'text',h:'Принцип',p:'Направления добавляются по решению Governing Council, когда выполнены критерии, и используют общие институциональные возможности платформы — а не создают отдельные структуры.'}]};
+
+const OUT={
+ o1:{t:'Новые отрасли экономики',lead:'Появление высокотехнологичных секторов вокруг технологий, которые проверены и получили путь к рынку.',caps:'c2,c3',e:'e1,e2,e3,e4,e5,e6,e7',a:'a1,a2,a4',
+  m:['Регуляторное тестирование снимает правовую неопределённость и позволяет запускать новые бизнес-модели','Промышленные полигоны и пилоты превращают технологии в продукты и контракты','Консорциумы компаний, науки и индустрии формируют предложение и спрос'],
+  k:['Число рынков, достигших коммерческих контрактов','Выручка бизнесов, созданных на платформе']},
+ o2:{t:'Иностранные инвестиции',lead:'Приток капитала в проекты платформы — вокруг рынков, а не отдельных компаний.',caps:'c1,c2',e:'e1,e2,e3',a:'a1,a4,a5',
+  m:['Предсказуемая правовая среда для первых внедрений','Платформы соинвестирования вокруг конкретных рынков','Демонстрация реальных пилотов инвесторам в данных, ИИ и цифровом доверии'],
+  k:['Объём привлечённого капитала в проекты платформы','Доля капитала, направленного в R&D и производство']},
+ o3:{t:'Международные R&D-центры',lead:'Размещение исследовательской деятельности международных участников в Узбекистане.',caps:'c2,c3,c4',e:'e2,e4,e6',a:'a1,a3',
+  m:['Совместные лаборатории университетов и корпораций','Исследовательские пилоты на промышленных данных','Программы академической и исследовательской мобильности'],
+  k:['Число R&D-проектов и центров','Объём R&D-расходов на территории']},
+ o4:{t:'Интеллектуальная собственность',lead:'Создание и коммерциализация ИС в Узбекистане, а не только использование внешних технологий.',caps:'c1,c3,c4',e:'e1,e2,e6',a:'a2,a3',
+  m:['Закрепление прав на ИС в консорциумах и пилотах','Лицензирование и сделки по передаче технологий (Digital IP Licensing Hub)','Партнёрство с патентными и правовыми институтами'],
+  k:['Число зарегистрированных и лицензированных объектов ИС','Лицензионные поступления']},
+ o5:{t:'Технологический экспорт',lead:'Экспорт решений, продуктов и услуг, проверенных на платформе, на региональные рынки.',caps:'c3,c4',e:'e1,e3,e6,e7',a:'a1,a2',r:1,
+  m:['Коммерциализация решений, прошедших валидацию, для соседних рынков','Региональные партнёрства и совместные пилоты','Экспорт регуляторных и сервисных решений (RegTech, trust-сервисы)'],
+  k:['Экспорт технологических продуктов и услуг','Число рынков назначения'],
+  note:'Выход на рынок назначения возможен при соблюдении его правил; автоматического признания разрешений нет.'},
+ o6:{t:'Квалифицированная занятость',lead:'Рост занятости в технологических и исследовательских функциях.',caps:'c2,c3',e:'e2,e4,e5',a:'a3,a4',
+  m:['Размещение R&D, инжиниринга и операций компаний-участников','Партнёрство с университетами в подготовке специалистов','Практика на реальных полигонах и в пилотных проектах'],
+  k:['Число высококвалифицированных вакансий','Доля местных специалистов в проектах']},
+ o7:{t:'Региональное лидерство',lead:'Позиция Узбекистана как точки притяжения региональных технологических проектов и источника регуляторных практик.',caps:'c1,c4',e:'e1,e3,e7',a:'',r:1,
+  m:['Платформа как место, где региональные проекты проходят проверку и запуск','Регуляторные подходы, проверенные в Узбекистане, как ориентир для партнёров','Постоянные форматы диалога с регуляторами региона'],
+  k:['Число региональных партнёрств и совместных инициатив','Использование подходов платформы партнёрами']}
+};
+Object.keys(OUT).forEach(id=>{
+  const o=OUT[id];
+  const blocks=[{t:'list',h:'Какие действия и механизмы вносят вклад',items:o.m},{t:'list',h:'Возможные показатели',items:o.k}];
+  if(o.note) blocks.push({t:'note',p:o.note});
+  blocks.push({t:'note',p:'Это стратегическая цель и потенциальный эффект, а не прогноз и не гарантированный результат.'});
+  D[id]={color:'var(--bronze)',short:o.t,kicker:'Потенциальный эффект · стратегическая цель',title:o.t,lead:o.lead,
+    rel:[id,...o.caps.split(','),...o.e.split(','),...(o.a?o.a.split(','):[]),...(o.r?['r','flow']:['flow']),'ring'],blocks};
+});
+
+D.r={color:'var(--bronze)',short:'Региональное масштабирование',kicker:'Региональное влияние',title:'Региональное масштабирование',
+ lead:'Расширение рынков за пределы Узбекистана через партнёрства и в рамках применимых правил рынков назначения.',
+ rel:['r','c4','c1','c3','flow','la','e1','e2','e3','e4','e5','e6','e7','o2','o3','o5','o7','ring'],
+ blocks:[
+  {t:'steps',items:['<b>Узбекистан</b> — проверка технологий в Sandbox и на полигонах, первые коммерческие кейсы.','<b>Центральная Азия</b> — совместные пилоты, обмен результатами тестов и методиками, добровольное сближение подходов с партнёрами-регуляторами.','<b>Партнёрские рынки</b> — экспорт проверенных решений и выход на рынки при соблюдении их правил.']},
+  {t:'list',h:'Механизмы',items:[['Двусторонние меморандумы с зарубежными регуляторами','po'],['Совместные пилоты и исследовательские программы','po'],['Региональные консорциумы и инвестиционные площадки','po'],['Площадки презентации решений Enterprise Uzbekistan','pr']]},
+  {t:'note',p:'Автоматического признания разрешений нет. Каждое расширение — результат договорённостей сторон и соблюдения применимых правил юрисдикции назначения. Отраслевые регуляторы за рубежом сохраняют свои компетенции.'}
+ ]};
+const FOCUS={
+ inst:['c1','c2','c3','c4','ring','f1','f2','fb','l12','l23','l34','l41','lf1'],
+ trans:['a1','a2','a3','a4','a5','bus','c2','c3','ring','e1','e2','e3','e4','e5','e6','e7','e8','flow','o1','o2','o3','o4','o5','o6','o7','strip','rail'],
+ reg:['c4','c1','la','r','flow','e1','e2','e3','e4','e5','e6','e7','e8','o2','o3','o5','o7','rail','l41']
+};
+const FCAP={
+ '':'Нажмите на элемент схемы — подробности откроются справа',
+ inst:'Институциональная архитектура: правовая основа и четыре механизма как единая система.',
+ trans:'Экономическая трансформация: от привлечённых возможностей к новым рынкам и эффектам.',
+ reg:'Региональное влияние: как платформа расширяет рынки за пределы Узбекистана.'
+};
+
+/* ---------- Build SVG (back: rail + links; front: economies, ring, region) ---------- */
+const NS='http://www.w3.org/2000/svg';
+const E=[ // economy bubbles (field of interconnected markets)
+ {id:'e1',x:1095,y:261,r:46,l:['Data','Economy']},
+ {id:'e2',x:1235,y:228,r:42,l:['Agentic','AI']},
+ {id:'e3',x:1100,y:381,r:44,l:['Digital','Trust']},
+ {id:'e4',x:1395,y:266,r:52,l:['Industrial','Intelligence']},
+ {id:'e5',x:1410,y:401,r:48,l:['Autonomous','Systems']},
+ {id:'e6',x:1245,y:326,r:40,l:['Digital','IP']},
+ {id:'e7',x:1260,y:419,r:36,l:['RegTech']},
+ {id:'e8',x:1515,y:216,r:26,l:['+ другие'],oth:1}
+];
+const ex=Object.fromEntries(E.map(e=>[e.id,e]));
+function edge(a,b,pad=3){const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);return [a.x+dx/d*(a.r+pad),a.y+dy/d*(a.r+pad)]}
+
+let back=`<defs>
+ <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1.5L8.5 5L1 8.5z" fill="#2A6B68"/></marker>
+ <marker id="ahb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1.5L8.5 5L1 8.5z" fill="#8F6E3F"/></marker>
+</defs>`;
+// rail: Attract / Enable / Scale as one continuous directional band aligned to the three zones
+back+=`<g data-id="rail">
+ <polygon points="40,104 322,104 336,120 322,136 40,136" fill="#E2F0EE"/>
+ <polygon points="340,104 962,104 976,120 962,136 340,136 354,120" fill="#D5E4EA"/>
+ <polygon points="980,104 1560,104 1560,136 980,136 994,120" fill="#C4D7DF"/>
+ <g font-size="14" fill="#0F3B4C" font-family="Inter,Segoe UI,Arial,sans-serif">
+  <text x="58" y="125"><tspan font-weight="700" letter-spacing="1">01  ПРИВЛЕЧЬ</tspan><tspan fill="#4b5a62" dx="10">технологии · капитал</tspan></text>
+  <text x="378" y="125"><tspan font-weight="700" letter-spacing="1">02  СОЗДАТЬ УСЛОВИЯ</tspan><tspan fill="#4b5a62" dx="12">право · институты · инфраструктура · партнёры</tspan></text>
+  <text x="1012" y="125"><tspan font-weight="700" letter-spacing="1">03  МАСШТАБИРОВАТЬ</tspan><tspan fill="#4b5a62" dx="12">коммерциализация · экспорт · регион</tspan></text>
+ </g></g>`;
+// actors -> platform (collector bus)
+[249,347,445,543,641].forEach((y,i)=>{back+=`<path class="link bus thin" data-id="bus${i+1}" data-ends="a${i+1},c2" d="M320 ${y} H346 V310"/>`;});
+back+=`<path class="link bus" data-id="bus" data-ends="c2" d="M346 310 H397" marker-end="url(#ah)"/>`;
+// permanent capability cycle (1→2→3→4→1)
+back+=`<path class="link" data-id="l12" data-ends="c1,c2" d="M525 438 V398" marker-end="url(#ah)"/>
+<path class="link" data-id="l23" data-ends="c2,c3" d="M656 310 H694" marker-end="url(#ah)"/>
+<path class="link" data-id="l34" data-ends="c3,c4" d="M825 398 V438" marker-end="url(#ah)"/>
+<path class="link" data-id="l41" data-ends="c4,c1" d="M694 526 H656" marker-end="url(#ah)"/>
+<path class="link burg" data-id="lf1" data-ends="c1,f1" d="M525 610 V634"/>`;
+// platform -> emerging markets (fan) and market interconnections
+const S={x:970,y:310,r:0};
+['e1','e6','e3'].forEach(id=>{const [x,y]=edge(ex[id],S,3);back+=`<path class="link fan" data-id="fan-${id}" data-ends="p,${id}" d="M${S.x} ${S.y} L${x.toFixed(1)} ${y.toFixed(1)}"/>`;});
+back+=`<circle cx="970" cy="310" r="4" fill="#1E9C93"/>`;
+ELINKS.forEach(([a,b])=>{const p=edge(ex[a],ex[b]),q=edge(ex[b],ex[a]);back+=`<path class="link thin" data-id="el-${a}-${b}" data-ends="${a},${b}" d="M${p[0].toFixed(1)} ${p[1].toFixed(1)} L${q[0].toFixed(1)} ${q[1].toFixed(1)}"/>`;});
+// capability 4 -> region; scale chain
+back+=`<path class="link bz" data-id="la" data-ends="c4,r" d="M950 526 H1008" marker-end="url(#ahb)"/>
+<g data-id="flow"><path class="link bz" d="M1285 462 V484" marker-end="url(#ahb)"/><path class="link bz" d="M1285 554 V570" marker-end="url(#ahb)"/></g>`;
+$('#back').innerHTML=back;
+
+let front=`<g class="node eco-lab" style="pointer-events:none"><text x="1010" y="162" font-size="14" font-weight="700" letter-spacing="1.2" fill="#667078" font-family="Inter,Segoe UI,Arial,sans-serif">ФОРМИРУЮЩИЕСЯ РЫНКИ</text><text x="1252" y="162" font-size="14" fill="#667078" font-family="Inter,Segoe UI,Arial,sans-serif">технологические экономики</text></g>`;
+E.forEach(e=>{
+  const n=e.l.length, ys=n===1?[e.y+5]:[e.y-3,e.y+14];
+  front+=`<g class="node eco${e.oth?' oth':''}" data-id="${e.id}" tabindex="0" role="button" aria-label="${e.l.join(' ')}"><circle class="b" cx="${e.x}" cy="${e.y}" r="${e.r}"/>${e.l.map((t,i)=>`<text x="${e.x}" y="${ys[i]}"${e.oth?' style="font-size:14px"':''}>${t}</text>`).join('')}</g>`;
+});
+front+=`<g class="node" id="ring" data-id="ring" tabindex="0" role="button" aria-label="Формирование новых рынков"><circle class="halo" cx="675" cy="418" r="47"/><circle class="c" cx="675" cy="418" r="38"/><text x="675" y="414">Новые</text><text x="675" y="431">рынки</text></g>`;
+front+=`<g class="node" id="reg" data-id="r" tabindex="0" role="button" aria-label="Региональное масштабирование">
+ <rect class="bg" x="1010" y="486" width="550" height="66" rx="2"/>
+ <text class="rl" x="1024" y="505" letter-spacing="1.2">РЕГИОНАЛЬНОЕ МАСШТАБИРОВАНИЕ</text>
+ <line x1="1062" y1="526" x2="1470" y2="526" stroke="#8F6E3F" stroke-width="1.6"/>
+ <circle cx="1062" cy="526" r="6" fill="#0F3B4C"/><circle cx="1266" cy="526" r="8" fill="#fff" stroke="#8F6E3F" stroke-width="2"/><circle cx="1470" cy="526" r="8" fill="#fff" stroke="#8F6E3F" stroke-width="1.6" stroke-dasharray="3 3"/>
+ <text x="1062" y="547">Узбекистан</text><text x="1266" y="547">Центральная Азия</text><text x="1470" y="547">Партнёрские рынки</text>
+</g>`;
+$('#front').innerHTML=front;
+
+/* ---------- State: selection (drawer) and presentation focus ---------- */
+let selKey=null, selId=null, focus='';
+const KEY={ring:'p',f1:'p',f2:'p',fb:'p'};
+const ALWAYS=['p','ph','rail','strip'];
+function applyState(){
+  let set=null;
+  if(selKey) set=new Set([...(D[selKey].rel||[]),selKey,selId,...ALWAYS]);
+  else if(focus) set=new Set([...FOCUS[focus],...ALWAYS]);
+  $$('[data-id]').forEach(el=>{
+    const id=el.dataset.id; let vis=true;
+    if(set) vis=el.dataset.ends?el.dataset.ends.split(',').every(x=>set.has(x)):set.has(id);
+    el.classList.toggle('dim',!vis);
+    el.classList.toggle('on',!!selKey&&vis&&el.classList.contains('link')&&!el.classList.contains('bus'));
+    el.classList.toggle('sel',!!selKey&&(id===selId));
+  });
+  if(selKey==='p'){ $('#frame').classList.add('sel'); }
+  stage.classList.toggle('f-trans',focus==='trans'&&!selKey);
+}
+
+/* ---------- Drawer rendering ---------- */
+const tg=k=>`<span class="tg ${TAG[k][1]}">${TAG[k][0]}</span>`;
+function blk(b){
+  const h=b.h?`<h5>${b.h}</h5>`:'';
+  switch(b.t){
+    case 'text': return `<section>${h}<p>${b.p}</p></section>`;
+    case 'list': return `<section ${b.id?`id="${b.id}"`:''}>${h}<ul>${b.items.map(i=>Array.isArray(i)?`<li>${i[0]}${tg(i[1])}</li>`:`<li>${i}</li>`).join('')}</ul></section>`;
+    case 'chips': return `<section>${h}<div class="chips">${b.items.map(i=>`<span class="chip">${i}</span>`).join('')}</div></section>`;
+    case 'flow': return `<section>${h}<div class="flow">${b.items.map((i,k)=>(k?'<span class="a">→</span>':'')+`<span class="s">${i}</span>`).join('')}</div></section>`;
+    case 'steps': return `<section>${b.h?h:''}<ol class="steps">${b.items.map((s,k)=>`<li>${b.lab?`<b>${STEP[k]}</b>`:''}${s}</li>`).join('')}</ol></section>`;
+    case 'cmp': return `<section>${h}<table class="cmp"><tr><th></th><th>Обычная песочница</th><th>Платформа</th></tr>${b.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</table></section>`;
+    case 'note': return `<div class="note">${b.p}</div>`;
+  }
+  return '';
+}
+function renderDrawer(key){
+  const d=D[key];
+  const rel=(d.rel||[]).filter(id=>D[id]&&id!==key&&id!==selId).filter((v,i,a)=>a.indexOf(v)===i);
+  const relHtml=rel.length?`<section><h5>Связанные элементы</h5><div class="chips">${rel.map(id=>`<span class="chip" data-go="${id}" tabindex="0" role="button">${D[id].short}</span>`).join('')}</div></section>`:'';
+  $('#dcontent').innerHTML=`<div class="dh"><div class="kick" style="color:${d.color}">${d.kicker}</div><h2>${d.title}</h2>${d.sub?`<div class="kick" style="color:var(--mut);margin-top:4px;letter-spacing:.04em;text-transform:none;font-weight:600;font-size:15px">${d.sub}</div>`:''}<p class="lead">${d.lead}</p></div><div class="db" id="dbody">${d.blocks.map(blk).join('')}${relHtml}</div>`;
+}
+function select(id,anchor){
+  const key=KEY[id]||id; if(!D[key]) return;
+  selKey=key; selId=id; renderDrawer(key);
+  stage.classList.add('open'); applyState();
+  const body=$('#dbody'); body.scrollTop=0;
+  if(anchor){ setTimeout(()=>{const t=$('#'+anchor,body); if(t) body.scrollTo({top:t.offsetTop-6,behavior:'smooth'});},120); }
+}
+function clearSel(){ selKey=selId=null; stage.classList.remove('open'); applyState(); }
+
+/* ---------- Decision layer ---------- */
+function openModal(){
+  $('#mcontent').innerHTML=`<div class="mh"><div class="kick" style="color:var(--burg)">Стратегическое решение · проект</div><h2>Предлагаемое решение</h2>
+   <div class="formal">Определить Enterprise Uzbekistan региональной платформой развития новых технологических экономик на основе интегрированной институциональной модели и режима регуляторного экспериментирования.</div></div>
+   <div class="mb">
+    <section><h5>Что предлагается утвердить</h5><ul>
+      <li>Стратегическую роль Узбекистана как региональной платформы формирования новых технологических рынков.</li>
+      <li>Enterprise Uzbekistan — координатором платформы в пределах предоставленных полномочий.</li>
+      <li>Порядок взаимодействия с отраслевыми регуляторами по каждому направлению.</li>
+      <li>Приоритетные рынки для первых инициатив (например, данные, ИИ-агенты, цифровое доверие).</li>
+      <li>Систему показателей: сформированные рынки, инвестиции, R&amp;D, ИС, экспорт.</li></ul></section>
+    <section><h5>Чего решение не предполагает</h5><ul>
+      <li>Новых привилегий и полномочий сверх действующего законодательства.</li>
+      <li>Замены или ограничения компетенций отраслевых регуляторов.</li>
+      <li>Неограниченного экспериментирования: надзор остаётся риск-ориентированным.</li>
+      <li>Автоматического признания разрешений в других странах.</li>
+      <li>Гарантированных экономических результатов — это стратегические цели.</li></ul></section>
+    <section><h5>Следующие шаги</h5><ul>
+      <li>Согласовать с отраслевыми регуляторами протоколы взаимодействия.</li>
+      <li>Выбрать 2–3 приоритетных рынка и подготовить пилотные инициативы.</li>
+      <li>Начать диалог с потенциальными международными и региональными партнёрами.</li></ul></section>
+    <section><h5>Статус элементов</h5><ul>
+      <li>Особый правовой режим, Regulatory Sandbox${tg('ex')}</li>
+      <li>Протоколы, полигоны, программы привлечения${tg('pr')}</li>
+      <li>Региональные и зарубежные партнёрства${tg('po')}</li>
+      <li>Рынки, инвестиции, экспорт, занятость${tg('ob')}</li></ul></section>
+    <div class="en">Position Enterprise Uzbekistan as a regional platform for developing emerging technology economies, supported by an integrated institutional and regulatory experimentation framework.</div>
+   </div>`;
+  $('#modal').classList.add('show');
+}
+const closeModal=()=>$('#modal').classList.remove('show');
+
+/* ---------- Events ---------- */
+function setFocus(f){
+  focus=(focus===f)?'':f;
+  $$('[data-focus]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.focus===focus)));
+  $('#fcap').textContent=FCAP[focus];
+  applyState();
+}
+$('#fcap').textContent=FCAP[''];
+$$('[data-focus]').forEach(b=>b.addEventListener('click',()=>setFocus(b.dataset.focus)));
+$('#scene').addEventListener('click',e=>{
+  const n=e.target.closest('.node');
+  if(n&&n.dataset.id&&!n.classList.contains('eco-lab')){
+    const id=n.dataset.id;
+    if(id==='ph') return;
+    if(D[KEY[id]||id]) select(id,id==='f1'?'sb':null);
+    return;
+  }
+  if(!e.target.closest('#hdr,.dec')&&selKey) clearSel();
+});
+$('#scene').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('.node[tabindex]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}
+});
+$('#drawer').addEventListener('click',e=>{const g=e.target.closest('[data-go]'); if(g) select(g.dataset.go);});
+$('#drawer').addEventListener('keydown',e=>{const g=e.target.closest('[data-go]'); if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();select(g.dataset.go);}});
+$('#dclose').addEventListener('click',clearSel);
+$('#decbtn').addEventListener('click',openModal);
+$('#mclose').addEventListener('click',closeModal);
+$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal();});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if($('#modal').classList.contains('show')) closeModal(); else clearSel(); }
+  else if(e.key==='1') setFocus('inst'); else if(e.key==='2') setFocus('trans'); else if(e.key==='3') setFocus('reg');
+});
+})();
+</script>
+</body>
+</html>
